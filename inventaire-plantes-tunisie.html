@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جرد النباتات في تونس | رسم خرائط التوزيع والمحافظة عليها</title>
+<meta name="description" content="تطبيق تفاعلي لجرد النباتات في تونس ورسم خرائط توزيعها والمحافظة عليها — نسخة مستقلة تعمل بنقرة مزدوجة">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#f7f5ef;--ink:#1a2b22;--ink2:#5c6f65;--ink3:#93a89d;--line:#e6e4d8;--card:#fff;
+--g800:#143d28;--g700:#1d5c38;--g600:#247a4b;--g500:#2e9e5b;--g100:#e3f0e6;--g50:#f0f7f1;
+--terra:#c2703d;--gold:#c9a227;--radius:16px;
+--sh:0 1px 2px rgba(20,40,30,.05),0 6px 18px rgba(20,40,30,.07);--shl:0 14px 38px rgba(20,40,30,.16)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Cairo',system-ui,'Segoe UI',sans-serif;line-height:1.75;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+img,svg{display:block}a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+:focus-visible{outline:3px solid rgba(46,158,91,.4);outline-offset:2px}
+::selection{background:#c9e5d0}
+.container{width:min(1200px,93%);margin-inline:auto}
+.hidden{display:none!important}
+/* ─── Header ─── */
+.top{position:sticky;top:0;z-index:1300;background:rgba(247,245,239,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:16px;padding:10px 0}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;cursor:pointer;flex:none}
+.brand-logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--g800),var(--g500));display:grid;place-items:center;color:#fff;box-shadow:var(--sh)}
+.brand-logo svg{width:24px;height:24px}
+.brand b{display:block;font-size:15px;line-height:1.3}
+.brand span{display:block;font-size:11px;color:var(--ink2);font-weight:600}
+nav.tabs{display:flex;gap:5px;margin-inline-start:auto;overflow-x:auto;scrollbar-width:none;padding:2px}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab-btn{display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;font-weight:700;font-size:13px;color:var(--ink2);white-space:nowrap;transition:.25s}
+.tab-btn svg{width:16px;height:16px;flex:none}
+.tab-btn:hover{background:var(--g50);color:var(--g700)}
+.tab-btn.active{background:var(--g700);color:#fff}
+/* ─── Panels ─── */
+section.panel{display:none}
+section.panel.active{display:block;animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sec-head{text-align:center;padding:48px 0 6px}
+.sec-kicker{display:inline-flex;align-items:center;gap:8px;color:var(--g700);background:var(--g50);border:1px solid #d6e8da;padding:6px 14px;border-radius:999px;font-size:12.5px;font-weight:700}
+.sec-kicker svg{width:14px;height:14px}
+.sec-title{font-size:clamp(24px,3.4vw,34px);font-weight:900;margin:12px 0 6px}
+.sec-sub{color:var(--ink2);max-width:640px;margin:0 auto;font-size:14.5px}
+/* ─── Hero ─── */
+.hero{position:relative;background:linear-gradient(135deg,#0e2f1e 0%,#1d5c38 55%,#2e7d4f 100%);color:#fff;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(560px 300px at 88% 15%,rgba(201,162,39,.2),transparent 60%),radial-gradient(520px 320px at 8% 92%,rgba(46,158,91,.28),transparent 60%)}
+.hero-in{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:36px;align-items:center;padding:64px 0 56px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);padding:7px 15px;border-radius:999px;font-size:12.5px;font-weight:700}
+.hero-badge svg{width:15px;height:15px;color:var(--gold)}
+.hero h1{font-size:clamp(30px,4.6vw,50px);font-weight:900;line-height:1.35;margin:18px 0 10px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero-sub{color:rgba(255,255,255,.88);font-size:clamp(14px,1.6vw,16.5px);max-width:560px}
+.hero-cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:12px 22px;border-radius:13px;font-weight:800;font-size:14px;transition:.25s}
+.btn svg{width:16px;height:16px}
+.btn-gold{background:var(--gold);color:#241b05;box-shadow:0 6px 18px rgba(201,162,39,.4)}
+.btn-gold:hover{transform:translateY(-2px)}
+.btn-ghost{border:1.5px solid rgba(255,255,255,.4);color:#fff}
+.btn-ghost:hover{background:rgba(255,255,255,.12)}
+.hero-img{position:relative;border-radius:22px;overflow:hidden;box-shadow:var(--shl);border:5px solid rgba(255,255,255,.16);min-height:280px;background:#0e2f1e}
+.hero-img img{width:100%;height:340px;object-fit:cover}
+.hero-cap{position:absolute;bottom:12px;inset-inline-start:12px;background:rgba(14,47,30,.78);backdrop-filter:blur(4px);padding:7px 14px;border-radius:999px;font-size:11.5px;font-weight:700}
+/* ─── KPI ─── */
+.kpi-wrap{margin-top:-30px;position:relative;z-index:5}
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shl);padding:22px 18px}
+.kpi{text-align:center;padding:4px}
+.kpi .ico{width:36px;height:36px;margin:0 auto 8px;border-radius:11px;background:var(--g50);color:var(--g700);display:grid;place-items:center}
+.kpi .ico svg{width:19px;height:19px}
+.kpi b{display:block;font-size:clamp(20px,2.6vw,30px);font-weight:900;color:var(--g700);line-height:1.2}
+.kpi span{font-size:11.5px;color:var(--ink2);font-weight:700}
+/* ─── Charts ─── */
+.charts{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;padding:34px 0 6px}
+.chart-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--sh)}
+.chart-card h3{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;margin-bottom:16px}
+.chart-card h3 svg{width:17px;height:17px;color:var(--g700)}
+.bar-row{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:12.5px;font-weight:700}
+.bar-row .lbl{width:170px;flex:none;display:flex;align-items:center;gap:7px;color:var(--ink2)}
+.bar-row .lbl i{width:10px;height:10px;border-radius:3px;flex:none}
+.bar-row .track{flex:1;height:14px;background:var(--g50);border-radius:99px;overflow:hidden}
+.bar-row .fill{height:100%;border-radius:99px;transition:width .8s ease}
+.bar-row .num{width:26px;text-align:center;font-weight:900;color:var(--g700)}
+.donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.donut-legend{flex:1;min-width:180px}
+.dl-row{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:12.5px;font-weight:700;color:var(--ink2)}
+.dl-row i{width:12px;height:12px;border-radius:50%;flex:none}
+.dl-row b{margin-inline-start:auto;color:var(--ink)}
+/* ─── Zones ─── */
+.zones{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:14px 0 8px}
+.zone-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--sh);transition:.25s;cursor:pointer}
+.zone-card:hover{transform:translateY(-4px);box-shadow:var(--shl)}
+.zone-card .bar{height:5px;border-radius:99px;margin-bottom:12px}
+.zone-card h4{font-size:14px;font-weight:800;margin-bottom:4px}
+.zone-card p{font-size:11.8px;color:var(--ink2);line-height:1.7}
+.zone-card .n{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:800;color:var(--g700);background:var(--g50);padding:3px 10px;border-radius:99px}
+/* ─── Carousel espèces menacées ─── */
+.feat-head{display:flex;align-items:center;gap:12px;padding:36px 0 4px}
+.feat-head h3{font-size:19px;font-weight:900;white-space:nowrap}
+.feat-head .line{flex:1;height:1px;background:var(--line)}
+.feat-scroll{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:14px;overflow-x:auto;padding:14px 2px 22px;scroll-snap-type:x mandatory}
+.th-card{scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:.25s;box-shadow:var(--sh)}
+.th-card:hover{transform:translateY(-4px);box-shadow:var(--shl)}
+.th-img{position:relative;height:130px;background:linear-gradient(135deg,#1d5c38,#2e9e5b);display:grid;place-items:center}
+.th-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.th-img .em{font-size:44px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.th-img .st{position:absolute;top:10px;inset-inline-start:10px;background:rgba(255,255,255,.94);padding:4px 10px;border-radius:99px;font-size:10.5px;font-weight:800}
+.th-body{padding:13px 15px 15px}
+.th-body .sci{display:block;font-style:italic;font-size:12px;color:var(--g700);font-weight:700}
+.th-body b{display:block;font-size:14px;margin:2px 0}
+.th-body span{font-size:11.5px;color:var(--ink2)}
+/* ─── Dernières observations ─── */
+.obs-latest{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--sh);padding:8px 18px;margin-bottom:10px}
+.ol-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.ol-row:last-child{border-bottom:none}
+.ol-row .em{font-size:24px;flex:none}
+.ol-row .txt{flex:1;min-width:0}
+.ol-row .txt b{font-size:13.5px}
+.ol-row .txt small{display:block;color:var(--ink2);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ol-row .who{text-align:flex-end;font-size:11px;color:var(--ink2);flex:none;font-weight:700}
+.ol-row .who b{display:block;color:var(--ink)}
+/* ─── Comment ça marche ─── */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:14px 0 56px}
+.how-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--sh);position:relative}
+.how-card .n{position:absolute;top:-14px;inset-inline-start:20px;width:32px;height:32px;border-radius:10px;background:var(--g700);color:#fff;display:grid;place-items:center;font-weight:900;font-size:15px;box-shadow:var(--sh)}
+.how-card h4{font-size:14.5px;font-weight:800;margin:10px 0 4px}
+.how-card p{font-size:12.5px;color:var(--ink2)}
+/* ─── Inventaire ─── */
+.toolbar{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:10px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:13px;box-shadow:var(--sh);position:sticky;top:70px;z-index:900;margin:24px 0 8px}
+.search-box{position:relative}
+.search-box svg{position:absolute;inset-inline-start:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--ink3)}
+.search-box input{width:100%;padding:11px 40px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);outline:none;transition:.2s;font-size:13.5px}
+.search-box input:focus{border-color:var(--g500);background:#fff;box-shadow:0 0 0 4px rgba(46,158,91,.12)}
+.sel-wrap{position:relative}
+.sel{width:100%;appearance:none;border:1.5px solid var(--line);background:var(--bg);padding:11px 14px;padding-inline-end:34px;border-radius:12px;font-size:13px;font-weight:700;color:var(--ink);outline:none;cursor:pointer}
+.sel:focus{border-color:var(--g500)}
+.sel-wrap>svg{position:absolute;inset-inline-end:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ink3);pointer-events:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 2px 14px}
+.chip-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-size:12.5px;font-weight:800;color:var(--ink2);transition:.2s}
+.chip-btn svg{width:14px;height:14px}
+.chip-btn:hover{border-color:var(--g500)}
+.chip-btn.on{background:var(--g700);border-color:var(--g700);color:#fff}
+.count-line{color:var(--ink2);font-size:13px;font-weight:700;padding:0 2px 12px}
+.count-line b{color:var(--g700);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px;padding-bottom:56px}
+.sp-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:.28s;box-shadow:var(--sh);display:flex;flex-direction:column}
+.sp-card:hover{transform:translateY(-5px);box-shadow:var(--shl)}
+.sp-img{position:relative;height:135px;background:linear-gradient(135deg,#1d5c38,#2e9e5b);display:grid;place-items:center}
+.sp-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sp-img .em{font-size:46px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.sp-img .st{position:absolute;top:10px;inset-inline-start:10px;color:#fff;padding:4px 11px;border-radius:99px;font-size:10.5px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.sp-img .en{position:absolute;top:10px;inset-inline-end:10px;background:rgba(255,255,255,.94);padding:4px 10px;border-radius:99px;font-size:10.5px;font-weight:800;color:#92400e}
+.sp-body{padding:14px 16px 12px;flex:1}
+.sci{font-style:italic;font-size:12px;color:var(--g700);font-weight:700}
+.sp-body b{display:block;font-size:15px;margin:2px 0}
+.sp-body .fr{font-size:12px;color:var(--ink2)}
+.sp-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.mini{font-size:11px;font-weight:700;background:var(--bg);border:1px solid var(--line);color:var(--ink2);padding:3px 10px;border-radius:99px;display:inline-flex;gap:6px;align-items:center}
+.mini i{width:8px;height:8px;border-radius:50%;flex:none}
+.sp-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding:10px 16px;background:#fcfcf8;font-size:11.5px}
+.sp-foot .fam{font-style:italic;color:var(--ink2);font-weight:600}
+.sp-foot .more{color:var(--g700);font-weight:800}
+.empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink2)}
+.empty svg{width:50px;height:50px;margin:0 auto 14px;color:var(--ink3)}
+.empty b{display:block;font-size:16px;color:var(--ink);margin-bottom:4px}
+/* ─── Modal fiche espèce ─── */
+.overlay{position:fixed;inset:0;background:rgba(13,30,22,.58);backdrop-filter:blur(6px);z-index:3000;display:none;align-items:flex-start;justify-content:center;padding:36px 16px;overflow-y:auto}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:22px;max-width:760px;width:100%;box-shadow:var(--shl);overflow:hidden;animation:pop .35s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes pop{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+.m-hero{position:relative;height:210px;background:linear-gradient(135deg,#143d28,#2e9e5b)}
+.m-hero img{width:100%;height:100%;object-fit:cover}
+.m-hero .em-fallback{position:absolute;inset:0;display:grid;place-items:center;font-size:80px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.4))}
+.m-hero .shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,30,20,.85),transparent 55%)}
+.m-hero .close{position:absolute;top:14px;inset-inline-start:14px;width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.9);display:grid;place-items:center;color:#143d28;transition:.2s}
+.m-hero .close:hover{background:#fff;transform:rotate(90deg)}
+.m-hero .close svg{width:18px;height:18px}
+.m-hero .head{position:absolute;bottom:12px;inset-inline:16px;color:#fff}
+.m-hero .head .sci{font-size:13px;opacity:.9}
+.m-hero .head h2{font-size:26px;font-weight:900;line-height:1.3}
+.m-hero .head .fr{font-size:13px;opacity:.85}
+.m-badges{display:flex;gap:7px;flex-wrap:wrap;padding:14px 24px 0}
+.m-badges .b{display:inline-flex;align-items:center;gap:7px;color:#fff;padding:5px 12px;border-radius:99px;font-size:11.5px;font-weight:800}
+.m-badges .b i{width:8px;height:8px;border-radius:50%;background:#fff}
+.m-badges .b.ghost{background:var(--g50)!important;color:var(--g700)!important;border:1px solid #d6e8da}
+.m-body{padding:18px 24px 26px}
+.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.m-sec{border:1px solid var(--line);border-radius:13px;padding:14px 16px;background:#fcfcf8}
+.m-sec.wide{grid-column:1/-1}
+.m-sec h4{font-size:13px;font-weight:800;color:var(--g700);margin-bottom:5px}
+.m-sec p{font-size:13px;color:var(--ink);line-height:1.85}
+.m-reg{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+.m-cta{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn-map{background:var(--g700);color:#fff;padding:11px 20px;border-radius:12px;font-size:13px;font-weight:800;display:inline-flex;align-items:center;gap:8px;transition:.2s}
+.btn-map:hover{background:var(--g800)}
+.btn-map svg{width:15px;height:15px}
+.btn-plain{border:1.5px solid var(--line);padding:11px 20px;border-radius:12px;font-size:13px;font-weight:800;color:var(--ink2);transition:.2s}
+.btn-plain:hover{border-color:var(--g500);color:var(--g700)}
+/* ─── Carte ─── */
+.map-wrap{display:grid;grid-template-columns:330px 1fr;gap:16px;padding:10px 0 56px}
+.map-side{display:flex;flex-direction:column;gap:13px}
+.side-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:17px;box-shadow:var(--sh)}
+.side-card h4{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:800;margin-bottom:12px}
+.side-card h4 svg{width:16px;height:16px;color:var(--g700)}
+.tgl-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;font-weight:700;padding:6px 0}
+.switch{position:relative;width:44px;height:24px;background:var(--line);border-radius:999px;transition:.25s;flex:none}
+.switch.on{background:var(--g600)}
+.switch::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.switch.on::after{transform:translateX(-20px)}
+.lg-row{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;color:var(--ink2);padding:4px 0}
+.lg-row i{width:12px;height:12px;border-radius:50%;flex:none}
+.lg-row .sq{border-radius:4px}
+.map-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ms{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.ms b{display:block;font-size:20px;font-weight:900;color:var(--g700)}
+.ms span{font-size:10.5px;color:var(--ink2);font-weight:700}
+#map{height:560px;border-radius:var(--radius);border:1px solid var(--line);box-shadow:var(--sh);z-index:1}
+.leaflet-container{direction:ltr!important}
+.map-note{font-size:11px;color:var(--ink3);text-align:center;margin-top:8px}
+/* ─── Sélecteur de fonds de carte ─── */
+.map-frame{position:relative}
+.bm-btn{position:absolute;top:12px;right:12px;z-index:20;width:46px;height:46px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--g800),var(--g500));color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 16px rgba(20,61,40,.45),inset 0 0 0 1px rgba(255,255,255,.22);transition:transform .25s,box-shadow .25s}
+.bm-btn svg{width:22px;height:22px;transition:transform .4s cubic-bezier(.2,.9,.3,1.3)}
+.bm-btn:hover{transform:translateY(-2px) scale(1.06);box-shadow:0 9px 24px rgba(20,61,40,.55),inset 0 0 0 1px rgba(255,255,255,.3)}
+.bm-btn.open svg{transform:rotate(-180deg)}
+.bm-panel{position:absolute;top:66px;right:12px;z-index:15;width:318px;max-height:calc(100% - 84px);overflow:auto;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shl);padding:13px;opacity:0;transform:translateY(-10px) scale(.95);transform-origin:top right;pointer-events:none;transition:opacity .26s,transform .3s cubic-bezier(.2,.9,.3,1.15)}
+.bm-panel.open{opacity:1;transform:none;pointer-events:auto}
+.bm-head{display:flex;align-items:center;justify-content:space-between;padding:0 3px 9px;border-bottom:1px solid var(--line);margin-bottom:11px}
+.bm-head b{font-size:13px;display:flex;align-items:center;gap:7px;color:var(--g800)}
+.bm-head b svg{width:15px;height:15px;color:var(--g700)}
+.bm-close{width:25px;height:25px;border:none;border-radius:8px;background:var(--bg);color:var(--ink2);display:grid;place-items:center;cursor:pointer;transition:.2s}
+.bm-close:hover{background:var(--g100);color:var(--g800)}
+.bm-close svg{width:13px;height:13px}
+.bm-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.bm-card{position:relative;border:2px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;background:#fff;padding:0;transition:transform .2s,box-shadow .2s,border-color .2s}
+.bm-card:hover{transform:translateY(-2px);box-shadow:var(--sh);border-color:var(--ink3)}
+.bm-card.on{border-color:var(--g600);box-shadow:0 0 0 3px var(--g100)}
+.bm-top{position:relative;display:block;height:58px}
+.bm-thumb{width:100%;height:100%;object-fit:cover;display:block;background:#e9efe7}
+.bm-fb{display:none;place-items:center;font-size:25px;background:linear-gradient(135deg,#26513a,#6f9160);position:absolute;inset:0}
+.bm-check{position:absolute;top:5px;left:5px;width:19px;height:19px;border-radius:50%;background:var(--g600);color:#fff;display:none;place-items:center;box-shadow:0 2px 7px rgba(0,0,0,.35)}
+.bm-check svg{width:11px;height:11px}
+.bm-card.on .bm-check{display:grid}
+.bm-name{display:block;font-size:11.5px;font-weight:800;color:var(--ink);padding:6px 5px 0;line-height:1.45}
+.bm-fr{display:block;font-size:9px;font-weight:700;color:var(--ink3);padding:0 5px 7px;direction:ltr;text-align:right}
+.bm-chip{position:absolute;bottom:14px;left:14px;z-index:15;background:rgba(20,61,40,.9);color:#fff;font-size:11.5px;font-weight:800;padding:7px 15px;border-radius:999px;opacity:0;transform:translateY(8px);transition:.3s;pointer-events:none;backdrop-filter:blur(4px);box-shadow:0 4px 14px rgba(20,61,40,.4)}
+.bm-chip.show{opacity:1;transform:none}
+@media(max-width:520px){.bm-panel{width:calc(100vw - 60px)}}
+.apin{width:34px;height:34px;background:#fff;border:2px solid var(--g700);border-radius:50%;display:grid;place-items:center;font-size:15px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.leaflet-popup-content{direction:rtl;text-align:right;margin:12px 14px;font-family:'Cairo',sans-serif}
+.map-off{display:grid;place-items:center;height:100%;color:var(--ink2);font-weight:700;padding:20px;text-align:center;background:var(--g50);border-radius:var(--radius)}
+/* ─── Conservation ─── */
+.uicn-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-radius:14px;overflow:hidden;box-shadow:var(--sh);margin:16px 0 8px}
+.uicn-cell{padding:14px 10px;text-align:center;color:#fff}
+.uicn-cell b{display:block;font-size:13.5px;font-weight:900}
+.uicn-cell span{font-size:10.5px;opacity:.9;font-weight:600}
+.uicn-note{text-align:center;font-size:11.5px;color:var(--ink3);margin-bottom:26px}
+.threats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:10px 0 8px}
+.t-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--sh);transition:.25s}
+.t-card:hover{transform:translateY(-4px)}
+.t-card .em{width:46px;height:46px;border-radius:13px;background:#fdece7;display:grid;place-items:center;font-size:23px;margin-bottom:11px}
+.t-card h4{font-size:14.5px;font-weight:800;margin-bottom:4px}
+.t-card p{font-size:12.5px;color:var(--ink2)}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:10px 0 12px}
+.a-card{display:flex;gap:13px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:17px;box-shadow:var(--sh)}
+.a-card .em{flex:none;width:44px;height:44px;border-radius:13px;background:var(--g50);display:grid;place-items:center;font-size:21px}
+.a-card h4{font-size:13.5px;font-weight:800;margin-bottom:3px}
+.a-card p{font-size:12px;color:var(--ink2)}
+.areas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;padding:12px 0 56px}
+.ar-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:8px;transition:.25s}
+.ar-card:hover{transform:translateY(-4px);box-shadow:var(--shl)}
+.ar-card .top{display:flex;align-items:flex-start;gap:10px}
+.ar-card .em{flex:none;width:40px;height:40px;border-radius:12px;background:var(--g50);display:grid;place-items:center;font-size:19px}
+.ar-card h4{font-size:13.8px;font-weight:800;line-height:1.45}
+.ar-card small{display:block;color:var(--ink2);font-size:11px;font-weight:600}
+.ar-card p{font-size:12px;color:var(--ink2);flex:1}
+.ar-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--ink2)}
+.ar-foot .go{color:var(--g700);background:var(--g50);padding:6px 12px;border-radius:9px;font-size:11.5px;font-weight:800;transition:.2s}
+.ar-foot .go:hover{background:var(--g700);color:#fff}
+/* ─── Observations ─── */
+.obs-wrap{display:grid;grid-template-columns:420px 1fr;gap:16px;padding:12px 0 56px;align-items:start}
+.form-card,.list-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--sh);padding:22px}
+.form-card h3,.list-card h3{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;margin-bottom:16px}
+.form-card h3 svg,.list-card h3 svg{width:17px;height:17px;color:var(--g700)}
+.f-row{margin-bottom:12px}
+.f-row label{display:block;font-size:12px;font-weight:800;color:var(--ink2);margin-bottom:5px}
+.f-row label i{color:var(--terra);font-style:normal}
+.f-row input,.f-row select,.f-row textarea{width:100%;padding:10px 13px;border-radius:11px;border:1.5px solid var(--line);background:var(--bg);outline:none;font-size:13px;transition:.2s}
+.f-row input:focus,.f-row select:focus,.f-row textarea:focus{border-color:var(--g500);background:#fff;box-shadow:0 0 0 4px rgba(46,158,91,.12)}
+.f-row textarea{resize:vertical;min-height:74px}
+.f-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-submit{width:100%;justify-content:center;background:var(--g700);color:#fff;padding:12px;border-radius:12px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:9px;transition:.2s;margin-top:4px}
+.btn-submit:hover{background:var(--g800)}
+.btn-submit svg{width:16px;height:16px}
+.list-scroll{max-height:560px;overflow-y:auto;padding-inline-end:6px}
+.lo-row{display:flex;gap:11px;padding:12px 4px;border-bottom:1px dashed var(--line);font-size:12.5px;position:relative}
+.lo-row:last-child{border-bottom:none}
+.lo-row .em{font-size:22px;flex:none;margin-top:2px}
+.lo-row .txt{flex:1;min-width:0}
+.lo-row .txt b{font-size:13px}
+.lo-row .txt .sci{margin-inline-start:6px}
+.lo-row .meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--ink2);font-size:11px;font-weight:700;margin:2px 0}
+.lo-row .notes{color:var(--ink2);font-size:11.8px}
+.lo-row .own-badge{background:#fef3c7;color:#92400e;font-size:9.5px;font-weight:800;padding:1px 8px;border-radius:99px;flex:none}
+.lo-row .del{flex:none;width:26px;height:26px;border-radius:8px;color:#b91c1c;display:grid;place-items:center;transition:.2s;align-self:center}
+.lo-row .del:hover{background:#fee2e2}
+.lo-row .del svg{width:14px;height:14px}
+/* ─── Footer & toast ─── */
+footer{background:#0e271b;color:rgba(255,255,255,.85);margin-top:10px}
+.foot-in{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:28px;padding:42px 0 26px}
+.foot-in h5{font-size:13.5px;font-weight:800;color:#fff;margin-bottom:11px}
+.foot-in p,.foot-in li{font-size:12.3px;color:rgba(255,255,255,.65);line-height:1.9}
+.foot-in ul{list-style:none}
+.foot-brand{display:flex;align-items:center;gap:11px;margin-bottom:12px;font-weight:800;color:#fff}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.12);padding:15px 0 20px;display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:rgba(255,255,255,.5);flex-wrap:wrap}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--g800);color:#fff;padding:13px 24px;border-radius:14px;font-weight:800;font-size:13.5px;box-shadow:var(--shl);z-index:4000;opacity:0;transition:.35s;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+/* ─── Sélecteur de langue (badges circulaires) ─── */
+.lang-sw{display:flex;gap:4px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:4px;flex:none;box-shadow:var(--sh)}
+.lang-sw button{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;transition:.25s;padding:0}
+.lang-sw button svg{width:27px;height:27px;border-radius:50%;box-shadow:0 0 0 1.5px var(--g100),0 1px 4px rgba(0,0,0,.18);transition:.25s}
+.lang-sw button:hover{background:var(--g50);transform:translateY(-1px)}
+.lang-sw button:hover svg{box-shadow:0 0 0 1.5px var(--g500),0 2px 6px rgba(0,0,0,.2)}
+.lang-sw button.active{background:linear-gradient(135deg,var(--g800),var(--g500));box-shadow:0 2px 10px rgba(20,61,40,.4)}
+.lang-sw button.active svg{box-shadow:0 0 0 2px var(--gold),0 0 0 3.5px rgba(201,162,39,.35),0 2px 6px rgba(0,0,0,.25)}
+/* ─── Photos du formulaire + lightbox + coordonnées ─── */
+.ph-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ph-box{position:relative;border:1.5px dashed var(--line);border-radius:12px;padding:8px 5px 4px;text-align:center;background:var(--bg);transition:.2s}
+.ph-box.has{border-style:solid;border-color:var(--g500);background:#fff;box-shadow:var(--sh)}
+.ph-dir{position:absolute;top:-7px;inset-inline-start:8px;background:var(--g700);color:#fff;font-size:9.5px;font-weight:900;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;line-height:1;z-index:2}
+.ph-add{display:grid;place-items:center;height:52px;cursor:pointer}
+.ph-em{font-size:20px;transition:.2s}
+.ph-add:hover .ph-em{transform:scale(1.18)}
+.ph-prev{width:100%;height:52px;object-fit:cover;border-radius:8px;cursor:pointer}
+.ph-del{position:absolute;top:2px;inset-inline-end:2px;width:17px;height:17px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:9px;display:grid;place-items:center;line-height:1;z-index:2}
+.ph-name{display:block;font-size:10px;font-weight:800;color:var(--ink2);margin-top:3px}
+.ph-hint{font-size:10.5px;color:var(--ink3);margin-top:6px;line-height:1.6}
+.coord-chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;color:#1d5c38;background:var(--g50);border:1px solid #d6e8da;padding:2px 9px;border-radius:99px;margin-top:3px}
+.coord-chip small{color:var(--ink3);font-weight:700}
+.lo-photos,.pp-ph{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.lo-photos img,.pp-ph img{width:44px;height:44px;object-fit:cover;border-radius:7px;cursor:pointer;border:1px solid var(--line);transition:.2s;background:#fff}
+.pp-ph img{width:54px;height:54px}
+.lo-photos img:hover,.pp-ph img:hover{transform:scale(1.07);box-shadow:var(--sh)}
+.lo-photos figure,.pp-ph figure{margin:0}
+.lo-photos figcaption,.pp-ph figcaption{text-align:center;font-size:9px;font-weight:900;color:var(--ink3);line-height:1.4}
+.lightbox{position:fixed;inset:0;background:rgba(10,22,16,.93);z-index:5000;display:none;place-items:center;cursor:zoom-out;padding:20px}
+.lightbox.show{display:grid}
+.lightbox img{max-width:min(92vw,900px);max-height:76vh;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lb-cap{position:absolute;top:18px;inset-inline-start:22px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);color:#fff;padding:6px 16px;border-radius:99px;font-weight:800;font-size:13px;backdrop-filter:blur(6px)}
+.lb-hint{position:absolute;bottom:20px;color:rgba(255,255,255,.65);font-size:11.5px;font-weight:700}
+html[dir="ltr"] .switch.on::after{transform:translateX(20px)}
+/* ─── Responsive ─── */
+@media(max-width:1020px){.hero-in{grid-template-columns:1fr;padding:48px 0 44px}.hero-img img{height:250px}.kpi-grid{grid-template-columns:repeat(3,1fr);row-gap:18px}.charts{grid-template-columns:1fr}.zones{grid-template-columns:repeat(2,1fr)}.threats,.acts,.areas-grid{grid-template-columns:1fr 1fr}.how{grid-template-columns:1fr}.map-wrap{grid-template-columns:1fr}#map{height:430px}.obs-wrap{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr 1fr}.uicn-strip{grid-template-columns:repeat(5,1fr)}.m-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.brand span{display:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}.zones,.threats,.acts,.areas-grid{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr}.ph-grid{grid-template-columns:repeat(2,1fr)}.uicn-strip{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:28px}.foot-in{grid-template-columns:1fr}.lang-sw button{width:31px;height:31px}.lang-sw button svg{width:24px;height:24px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-sprout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-9"/><path d="M12 13C12 8 8.5 5.5 4 5.5 4 10.5 7.5 13 12 13z"/><path d="M12 13c0-5 3.5-7.5 8-7.5 0 5-3.5 7.5-8 7.5z"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 6h12M8.5 12h12M8.5 18h12"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+<symbol id="i-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.8-3.4 7.9-8 9-4.6-1.1-8-4.2-8-9V6l8-3z"/><path d="M9 12l2 2 4-4.5"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></symbol>
+<symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5S5 15 5 10a7 7 0 0 1 14 0c0 5-7 11.5-7 11.5z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5z"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+<symbol id="i-tent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4L3 20h18L12 4z"/><path d="M12 12.5L8.5 20M12 12.5l3.5 7.5"/></symbol>
+<symbol id="i-drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.2 20c.6-3.2 2.9-5 5.8-5s5.2 1.8 5.8 5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 15.2c2.6.4 4.3 2 4.8 4.8"/></symbol>
+</svg>
+
+<header class="top"><div class="container top-in">
+  <a class="brand" onclick="TBI.tab('home')">
+    <span class="brand-logo"><svg><use href="#i-sprout"/></svg></span>
+    <span><b data-i18n="brandT">جرد النباتات في تونس</b><span data-i18n="brandS">رسم خرائط التوزيع والمحافظة عليها</span></span>
+  </a>
+  <nav class="tabs" id="navTabs">
+    <button class="tab-btn active" data-tab="home"><svg><use href="#i-sprout"/></svg><span data-i18n="tabHome">الرئيسية</span></button>
+    <button class="tab-btn" data-tab="inventory"><svg><use href="#i-list"/></svg><span data-i18n="tabInv">الجرد النباتي</span></button>
+    <button class="tab-btn" data-tab="map"><svg><use href="#i-map"/></svg><span data-i18n="tabMap">خريطة التوزيع</span></button>
+    <button class="tab-btn" data-tab="conservation"><svg><use href="#i-shield"/></svg><span data-i18n="tabCons">المحافظة</span></button>
+    <button class="tab-btn" data-tab="obs"><svg><use href="#i-eye"/></svg><span data-i18n="tabObs">المشاهدات</span></button>
+  </nav>
+  <div class="lang-sw" id="langSw" role="group" aria-label="اختيار اللغة">
+    <button type="button" data-lang="ar" title="العربية — Tunisie" aria-label="العربية"><svg viewBox="0 0 32 32" aria-hidden="true"><clipPath id="cfAr"><circle cx="16" cy="16" r="16"/></clipPath><g clip-path="url(#cfAr)"><rect width="32" height="32" fill="#e70013"/><circle cx="16" cy="16" r="8.6" fill="#fff"/><circle cx="16" cy="16" r="6.7" fill="#e70013"/><circle cx="17.7" cy="16" r="5.6" fill="#fff"/><polygon points="17.9,12.5 18.75,14.83 21.2,14.92 19.26,16.43 19.94,18.78 17.9,17.4 15.86,18.78 16.54,16.43 14.6,14.92 17.05,14.83" fill="#e70013"/></g></svg></button>
+    <button type="button" data-lang="fr" title="Français — France" aria-label="Français"><svg viewBox="0 0 32 32" aria-hidden="true"><clipPath id="cfFr"><circle cx="16" cy="16" r="16"/></clipPath><g clip-path="url(#cfFr)"><rect width="32" height="32" fill="#fff"/><rect width="10.7" height="32" fill="#0055A4"/><rect x="21.3" width="10.7" height="32" fill="#EF4135"/></g></svg></button>
+    <button type="button" data-lang="en" title="English — Royaume-Uni" aria-label="English"><svg viewBox="0 0 32 32" aria-hidden="true"><clipPath id="cfEn"><circle cx="16" cy="16" r="16"/></clipPath><g clip-path="url(#cfEn)"><rect width="32" height="32" fill="#012169"/><path d="M0 0 32 32M32 0 0 32" stroke="#fff" stroke-width="6"/><path d="M0 0 32 32M32 0 0 32" stroke="#C8102E" stroke-width="2.2"/><path d="M16 0v32M0 16h32" stroke="#fff" stroke-width="10"/><path d="M16 0v32M0 16h32" stroke="#C8102E" stroke-width="5.6"/></g></svg></button>
+  </div>
+</div></header>
+
+<main>
+<!-- ═══════════ 1. TABLEAU DE BORD ═══════════ -->
+<section class="panel active" id="panel-home">
+  <div class="hero">
+    <div class="container hero-in">
+      <div>
+        <span class="hero-badge"><svg><use href="#i-sprout"/></svg><span data-i18n="heroBadge">مشروع علوم الحياة — الجمهورية التونسية</span></span>
+        <h1 data-i18n-html="heroH1">جرد النباتات في تونس<br><em>ورسم خرائط توزيعها والمحافظة عليها</em></h1>
+        <p class="hero-sub" data-i18n="heroSub">تطبيق تفاعلي يجمع 30 نوعاً نباتياً حقيقياً من الفلورة التونسية، يرسم توزيعها الجغرافي عبر الولايات الـ24، ويسلّط الضوء على المحميات الطبيعية وسبل المحافظة على هذا الإرث الحيوي.</p>
+        <div class="hero-cta">
+          <button class="btn btn-gold" onclick="TBI.tab('inventory')"><svg><use href="#i-search"/></svg><span data-i18n="heroCta1">استكشف الجرد</span></button>
+          <button class="btn btn-ghost" onclick="TBI.tab('map')"><svg><use href="#i-map"/></svg><span data-i18n="heroCta2">شاهد الخريطة</span></button>
+        </div>
+      </div>
+      <div class="hero-img" id="heroImg">
+        <img src="https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/beeff1c9180c.jpg" alt="نباتات تونس" onerror="this.style.display='none'">
+        <span class="hero-cap" data-i18n="heroCap">🌿 فلورة تونسية: من الغابات الرطبة إلى الصحراء</span>
+      </div>
+    </div>
+  </div>
+  <div class="container kpi-wrap"><div class="kpi-grid" id="kpiGrid"></div></div>
+  <div class="container charts">
+    <div class="chart-card"><h3><svg><use href="#i-layers"/></svg><span data-i18n="chZonesH">الأنواع حسب النطاق البيئي</span></h3><div id="zoneBars"></div></div>
+    <div class="chart-card"><h3><svg><use href="#i-shield"/></svg><span data-i18n="chUicnH">حالة الحفظ (UICN)</span></h3><div class="donut-wrap"><div id="donut"></div><div class="donut-legend" id="donutLegend"></div></div></div>
+  </div>
+  <div class="container">
+    <div class="feat-head"><h3 data-i18n="fhZones">🏞️ النطاقات البيئية الخمسة</h3><span class="line"></span></div>
+    <div class="zones" id="zoneCards"></div>
+    <div class="feat-head"><h3 data-i18n="fhThreat">⚠️ أنواع مهددة تحتاج الحماية</h3><span class="line"></span></div>
+    <div class="feat-scroll" id="threatScroll"></div>
+    <div class="feat-head"><h3 data-i18n="fhLatest">🔭 آخر المشاهدات الميدانية</h3><span class="line"></span></div>
+    <div class="obs-latest" id="latestObs" style="margin-top:12px"></div>
+    <div class="how">
+      <div class="how-card"><span class="n">1</span><h4 data-i18n="how1T">🔎 استكشف الجرد</h4><p data-i18n="how1P">ابحث في قاعدة بيانات 30 نوعاً بفلاتر العائلة والحالة والنطاق البيئي، وافتح البطاقة الكاملة لكل نوع.</p></div>
+      <div class="how-card"><span class="n">2</span><h4 data-i18n="how2T">🗺️ تتبّع التوزيع</h4><p data-i18n="how2P">انقر على أي ولاية في الخريطة التفاعلية لاكتشاف الأنواع المرصودة فيها، أو رشّح حسب نوع واحد.</p></div>
+      <div class="how-card"><span class="n">3</span><h4 data-i18n="how3T">🤝 ساهم بمشاهدتك</h4><p data-i18n="how3P">سجّل مشاهداتك الميدانية في قسم المشاهدات — تُحفظ في جهازك وتُثرى الخريطة تلقائياً.</p></div>
+    </div>
+  </div>
+</section>
+<!-- ═══════════ 2. INVENTAIRE ═══════════ -->
+<section class="panel" id="panel-inventory">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker"><svg><use href="#i-list"/></svg><span data-i18n="invKicker">قاعدة بيانات ميدانية</span></span>
+      <h2 class="sec-title" data-i18n="invTitle">الجرد النباتي</h2>
+      <p class="sec-sub" data-i18n="invSub">30 نوعاً حقيقياً من الفلورة التونسية بأوصاف علمية، مواطنها، استعمالاتها وحالة حفظها حسب القائمة الحمراء.</p>
+    </div>
+    <div class="toolbar">
+      <div class="search-box"><svg><use href="#i-search"/></svg><input id="q" type="text" data-i18n-ph="searchPh" placeholder="ابحث: الاسم العلمي، العربي أو الفرنسي…"></div>
+      <div class="sel-wrap"><select id="fFam" class="sel"></select><svg><use href="#i-chevron"/></svg></div>
+      <div class="sel-wrap"><select id="fSt" class="sel"></select><svg><use href="#i-chevron"/></svg></div>
+      <div class="sel-wrap"><select id="fZone" class="sel"></select><svg><use href="#i-chevron"/></svg></div>
+    </div>
+    <div class="chips">
+      <button class="chip-btn" id="chEnd"><svg><use href="#i-star"/></svg><span data-i18n="endOnly">متوطن فقط</span></button>
+      <button class="chip-btn" id="chReset"><svg><use href="#i-x"/></svg><span data-i18n="reset">إعادة الضبط</span></button>
+    </div>
+    <div class="count-line" id="countLine"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- ═══════════ 3. CARTE ═══════════ -->
+<section class="panel" id="panel-map">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker"><svg><use href="#i-map"/></svg><span data-i18n="mapKicker">خرائط جغرافية تفاعلية</span></span>
+      <h2 class="sec-title" data-i18n="mapTitle">خريطة التوزيع</h2>
+      <p class="sec-sub" data-i18n="mapSub">حجم الدائرة يعكس عدد الأنواع المرصودة في الولاية. انقر على أي دائرة لاستكشاف الأنواع، وأضف طبقة المحميات الطبيعية والمشاهدات الميدانية — بدّل بين الخلفيات (قمر صناعي، طبوغرافية، شوارع…) عبر زر الطبقات على الخريطة.</p>
+    </div>
+    <div class="map-wrap">
+      <aside class="map-side">
+        <div class="side-card">
+          <h4><svg><use href="#i-search"/></svg><span data-i18n="sideFilter">تصفية حسب نوع</span></h4>
+          <div class="sel-wrap"><select id="mSp" class="sel"></select><svg><use href="#i-chevron"/></svg></div>
+          <div style="margin-top:10px">
+            <div class="tgl-row"><span data-i18n="tglAreas">🛡️ المحميات الطبيعية (11)</span><div class="switch on" id="tglAreas"></div></div>
+            <div class="tgl-row"><span data-i18n="tglObs">🔭 مشاهدات ميدانية</span><div class="switch on" id="tglObs"></div></div>
+          </div>
+        </div>
+        <div class="side-card">
+          <h4><svg><use href="#i-layers"/></svg><span data-i18n="sideLegend">دليل الألوان</span></h4>
+          <div class="lg-row"><i style="background:#1d5c38"></i><span data-i18n="lgN">الولايات الشمالية</span></div>
+          <div class="lg-row"><i style="background:#a16207"></i><span data-i18n="lgC">ولايات الوسط</span></div>
+          <div class="lg-row"><i style="background:#b45309"></i><span data-i18n="lgS">الولايات الجنوبية</span></div>
+          <div class="lg-row"><i class="sq" style="background:#c2703d"></i><span data-i18n="lgObs">نقطة مشاهدة ميدانية</span></div>
+          <div class="lg-row"><span style="font-size:15px">🛡️</span><span data-i18n="lgArea">حديقة/محمية طبيعية</span></div>
+        </div>
+        <div class="side-card">
+          <h4><svg><use href="#i-pin"/></svg><span data-i18n="sideStats">الخريطة بالأرقام</span></h4>
+          <div class="map-stats">
+            <div class="ms"><b id="msObs">0</b><span data-i18n="msObs">مشاهدة</span></div>
+            <div class="ms"><b>30</b><span data-i18n="msSp">نوع مرسوم</span></div>
+            <div class="ms"><b>24</b><span data-i18n="msGov">ولاية</span></div>
+            <div class="ms"><b>11</b><span data-i18n="msArea">محمية</span></div>
+          </div>
+        </div>
+      </aside>
+      <div>
+        <div class="map-frame">
+          <div id="map"></div>
+          <button type="button" class="bm-btn" id="bmBtn" title="اختيار خلفية الخريطة" aria-label="اختيار خلفية الخريطة" aria-expanded="false"><svg><use href="#i-layers"/></svg></button>
+          <div class="bm-panel" id="bmPanel" role="dialog" aria-label="خلفيات الخريطة">
+            <div class="bm-head"><b><svg><use href="#i-layers"/></svg><span data-i18n="bmPanelT">خلفيات الخريطة</span></b><button type="button" class="bm-close" id="bmClose" aria-label="إغلاق"><svg><use href="#i-x"/></svg></button></div>
+            <div class="bm-grid" id="bmGrid"></div>
+          </div>
+          <div class="bm-chip" id="bmChip"></div>
+        </div>
+        <p class="map-note" data-i18n="mapNote">🌐 تتطلب الخريطة والصور اتصالاً بالإنترنت عند أول فتح — كل البيانات محفوظة داخل الملف.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 4. CONSERVATION ═══════════ -->
+<section class="panel" id="panel-conservation">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker"><svg><use href="#i-shield"/></svg><span data-i18n="consKicker">حماية الإرث النباتي</span></span>
+      <h2 class="sec-title" data-i18n="consTitle">المحافظة على النباتات</h2>
+      <p class="sec-sub" data-i18n="consSub">مقياس حالة الحفظ، التهديدات الرئيسية، شبكة المحميات الطبيعية، وإجراءات ملموسة لحماية الفلورة التونسية.</p>
+    </div>
+    <div class="uicn-strip" id="uicnStrip"></div>
+    <p class="uicn-note" data-i18n="uicnNote">مقياس الاتحاد الدولي لصون الطبيعة (UICN) كما هو مستعمل في قوائم تقييم الفلورة التونسية</p>
+    <div class="feat-head"><h3 data-i18n="fhThreats">🔥 التهديدات الرئيسية</h3><span class="line"></span></div>
+    <div class="threats">
+      <div class="t-card"><div class="em">🏗️</div><h4 data-i18n="th1t">التوسع العمراني</h4><p data-i18n="th1p">زحف البناء وال طرقات على الكثبان الساحلية والماكي — الاختفاء الأسرع للموائل على السواحل.</p></div>
+      <div class="t-card"><div class="em">🔥</div><h4 data-i18n="th2t">حرائق الغابات</h4><p data-i18n="th2p">الصيف الحار الجاف يضاعف الحرائق في كروميرية، ولا تتجدد الغابة دائماً بنفس التركيبة.</p></div>
+      <div class="t-card"><div class="em">🐐</div><h4 data-i18n="th3t">الرعي الجائر</h4><p data-i18n="th3p">الدهس المتواصل يمنع تجدد الشتلات ويُفقِد السهوب من الحلفاء والشيح والزعتر غطاءها.</p></div>
+      <div class="t-card"><div class="em">🌡️</div><h4 data-i18n="th4t">التغير المناخي</h4><p data-i18n="th4p">الجفاف المتواصل وإجهاد المياه يقلّصان الغابات الرطبة ويدفعان الأنواع نحو الشمال والارتفاع.</p></div>
+      <div class="t-card"><div class="em">✂️</div><h4 data-i18n="th5t">الجمع غير المنظم</h4><p data-i18n="th5p">النباتات الطبية والعطرية (الشيح، الزعتر، الأزير) تُجمع بجذورها دون حصص أو إعادة غرس.</p></div>
+      <div class="t-card"><div class="em">🌱</div><h4 data-i18n="th6t">الأنواع الغازية</h4><p data-i18n="th6p">الأغاف والتين الشوكي وغيرها تتنافس مع الأنواع المحلية وتغير تركيبة المجتمعات النباتية.</p></div>
+    </div>
+    <div class="feat-head"><h3 data-i18n="fhActs">✅ إجراءات المحافظة</h3><span class="line"></span></div>
+    <div class="acts">
+      <div class="a-card"><div class="em">🛡️</div><div><h4 data-i18n="ac1t">تقوية شبكة المحميات</h4><p data-i18n="ac1p">11 حديقة وطنية ومحمية — منها إشكل المصنف تراثاً عالمياً — تغطي أخبار النظم البيئية الكبرى.</p></div></div>
+      <div class="a-card"><div class="em">⚖️</div><div><h4 data-i18n="ac2t">التأطير القانوني</h4><p data-i18n="ac2p">قوائم الأنواع المحمية، مدونة الغابات ودراسات الأثر تقيّد الاقتلاع والتجارة غير المشروعة.</p></div></div>
+      <div class="a-card"><div class="em">🌳</div><div><h4 data-i18n="ac3t">إعادة التشجير والإصلاح</h4><p data-i18n="ac3p">مشاتل الأنواع المحلية، تثبيت الكثبان وإعادة توطين السيّاح والغزال في المحميات الجنوبية.</p></div></div>
+      <div class="a-card"><div class="em">🫙</div><div><h4 data-i18n="ac4t">بنوك البذور</h4><p data-i18n="ac4p">حفظ التنوع الوراثي للأنواع النادرة والمتوطنة في بنوك البذور والمجموعات الحية.</p></div></div>
+      <div class="a-card"><div class="em">🔭</div><div><h4 data-i18n="ac5t">العلوم التشاركية</h4><p data-i18n="ac5p">جرد مواطن ومشاهدات موثقة من الهواة والباحثين تُغذي خرائط التوزيع وتتبع التراجع.</p></div></div>
+      <div class="a-card"><div class="em">📢</div><div><h4 data-i18n="ac6t">التوعية والتربية</h4><p data-i18n="ac6p">مسارات بيئية في الحدائق الوطنية، إدماج الفلورة في المناهج، وتثمين المنتجات المحلية.</p></div></div>
+    </div>
+    <div class="feat-head"><h3 data-i18n="fhAreas">🏞️ شبكة المحميات الطبيعية</h3><span class="line"></span></div>
+    <div class="areas-grid" id="areasGrid"></div>
+  </div>
+</section>
+
+<!-- ═══════════ 5. OBSERVATIONS ═══════════ -->
+<section class="panel" id="panel-obs">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker"><svg><use href="#i-eye"/></svg><span data-i18n="obsKicker">علم المواطن</span></span>
+      <h2 class="sec-title" data-i18n="obsTitle">المشاهدات الميدانية</h2>
+      <p class="sec-sub" data-i18n="obsSub">سجّل ما رصدته في الطبيعة: النوع، الولاية، التاريخ وملاحظاتك. تُحفظ مشاهداتك في متصفحك وتظهر مباشرة على الخريطة.</p>
+    </div>
+    <div class="obs-wrap">
+      <div class="form-card">
+        <h3><svg><use href="#i-plus"/></svg><span data-i18n="formT">إضافة مشاهدة جديدة</span></h3>
+        <form id="obsForm">
+          <div class="f-row"><label><span data-i18n="fSp">النوع</span> <i>*</i></label><select id="oSp" class="sel"></select></div>
+          <div class="f-row"><label><span data-i18n="fGov">الولاية</span> <i>*</i></label><select id="oGov" class="sel"></select></div>
+          <div class="f-grid">
+            <div class="f-row"><label><span data-i18n="fWho">المراقب</span> <i>*</i></label><input id="oWho" type="text" data-i18n-ph="whoPh" placeholder="اسمك الكامل"></div>
+            <div class="f-row"><label data-i18n="fDate">التاريخ</label><input id="oDate" type="date"></div>
+          </div>
+          <div class="f-row"><label><span data-i18n="fCoords">الإحداثيات WGS84 — درجة عشرية (اختياري)</span></label>
+            <div class="f-grid">
+              <div class="f-row" style="margin-bottom:0"><label><span data-i18n="fLat">خط العرض (Y)</span></label><input id="oLat" type="number" step="0.000001" min="30" max="38" inputmode="decimal" data-i18n-ph="latPh" placeholder="36.84390"></div>
+              <div class="f-row" style="margin-bottom:0"><label><span data-i18n="fLng">خط الطول (X)</span></label><input id="oLng" type="number" step="0.000001" min="7" max="13" inputmode="decimal" data-i18n-ph="lngPh" placeholder="10.18965"></div>
+            </div>
+          </div>
+          <div class="f-row"><label><span data-i18n="fPhotos">صور الاتجاهات الأربعة (اختياري)</span></label>
+            <div class="ph-grid" id="phGrid">
+              <div class="ph-box" data-dir="N"><span class="ph-dir">N</span><label class="ph-add"><input type="file" accept="image/*" hidden><span class="ph-em">📷</span></label><img class="ph-prev" alt="N" hidden><button type="button" class="ph-del" hidden>✕</button><span class="ph-name" data-i18n="dirN">شمال</span></div>
+              <div class="ph-box" data-dir="E"><span class="ph-dir">E</span><label class="ph-add"><input type="file" accept="image/*" hidden><span class="ph-em">📷</span></label><img class="ph-prev" alt="E" hidden><button type="button" class="ph-del" hidden>✕</button><span class="ph-name" data-i18n="dirE">شرق</span></div>
+              <div class="ph-box" data-dir="S"><span class="ph-dir">S</span><label class="ph-add"><input type="file" accept="image/*" hidden><span class="ph-em">📷</span></label><img class="ph-prev" alt="S" hidden><button type="button" class="ph-del" hidden>✕</button><span class="ph-name" data-i18n="dirS">جنوب</span></div>
+              <div class="ph-box" data-dir="W"><span class="ph-dir">W</span><label class="ph-add"><input type="file" accept="image/*" hidden><span class="ph-em">📷</span></label><img class="ph-prev" alt="W" hidden><button type="button" class="ph-del" hidden>✕</button><span class="ph-name" data-i18n="dirW">غرب</span></div>
+            </div>
+            <div class="ph-hint" data-i18n="phHint">اضغط على كل مربع لإضافة صورة في الاتجاه المقابل — تُضغط الصور تلقائياً وتُحفظ في جهازك.</div>
+          </div>
+          <div class="f-row"><label data-i18n="fNote">ملاحظات</label><textarea id="oNote" data-i18n-ph="notePh" placeholder="عدد الأفراد، الحالة الصحية، الموطن الدقيق…"></textarea></div>
+          <button type="submit" class="btn-submit"><svg><use href="#i-plus"/></svg><span data-i18n="submit">تسجيل المشاهدة</span></button>
+        </form>
+      </div>
+      <div class="list-card">
+        <h3><svg><use href="#i-list"/></svg><span data-i18n="listT">سجل المشاهدات</span> (<span id="obsCount">0</span>)</h3>
+        <div class="list-scroll" id="obsList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="container foot-in">
+  <div>
+    <div class="foot-brand"><span class="brand-logo" style="width:38px;height:38px"><svg style="width:20px;height:20px"><use href="#i-sprout"/></svg></span><span data-i18n="brandT">جرد النباتات في تونس</span></div>
+    <p data-i18n="ftDesc">مشروع تربوي في خدمة الإرث النباتي التونسي: نجرد الأنواع، نرسم خرائط توزيعها ونعمل على المحافظة عليها — نسخة مستقلة تعمل دون تثبيت أو خادم.</p>
+  </div>
+  <div><h5 data-i18n="ftNav">التنقل</h5><ul>
+    <li><a href="#" onclick="TBI.tab('inventory');return false"><span data-i18n="navInv">→ الجرد النباتي</span></a></li>
+    <li><a href="#" onclick="TBI.tab('map');return false"><span data-i18n="navMap">→ خريطة التوزيع</span></a></li>
+    <li><a href="#" onclick="TBI.tab('conservation');return false"><span data-i18n="navCons">→ المحافظة</span></a></li>
+    <li><a href="#" onclick="TBI.tab('obs');return false"><span data-i18n="navObs">→ المشاهدات الميدانية</span></a></li>
+  </ul></div>
+  <div><h5 data-i18n="ftSrc">المصادر</h5><p data-i18n="ftSrcP">الهورو (1959) · بوتييه-ألابيت (1979) · القوائم الحمراء UICN · الإدارة العامة للغابات · إحداثيات ونصوص استرشادية ذات نزعة تربوية.</p></div>
+</div>
+<div class="container foot-bottom"><span data-i18n="ftB1">© 2026 · جرد النباتات في تونس — Inventaire Botanique de Tunisie</span><span data-i18n="ftB2">نرسم الخرائط لكي نحافظ 🌿</span></div></footer>
+
+<div class="overlay" id="overlay"><div class="modal" role="dialog" aria-modal="true" id="modalBox"></div></div>
+<div class="lightbox" id="lightbox"><img id="lbImg" alt=""><span id="lbCap" class="lb-cap"></span><span class="lb-hint" data-i18n="lbHint">انقر في أي مكان للإغلاق</span></div>
+<div class="toast" id="toast"></div>
+<noscript><p style="text-align:center;padding:30px">هذا التطبيق يتطلب تشغيل جافاسكريبت — This app requires JavaScript.</p></noscript>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ═══════════ INTERNATIONALISATION — AR / FR / EN ═══════════ */
+let LANG="ar";
+const UI={
+ar:{
+title:"جرد النباتات في تونس | رسم خرائط التوزيع والمحافظة عليها",
+brandT:"جرد النباتات في تونس",brandS:"رسم خرائط التوزيع والمحافظة عليها",
+tabHome:"الرئيسية",tabInv:"الجرد النباتي",tabMap:"خريطة التوزيع",tabCons:"المحافظة",tabObs:"المشاهدات",
+heroBadge:"مشروع علوم الحياة — الجمهورية التونسية",
+heroH1:"جرد النباتات في تونس<br><em>ورسم خرائط توزيعها والمحافظة عليها</em>",
+heroSub:"تطبيق تفاعلي يجمع 30 نوعاً نباتياً حقيقياً من الفلورة التونسية، يرسم توزيعها الجغرافي عبر الولايات الـ24، ويسلّط الضوء على المحميات الطبيعية وسبل المحافظة على هذا الإرث الحيوي.",
+heroCta1:"استكشف الجرد",heroCta2:"شاهد الخريطة",heroCap:"🌿 فلورة تونسية: من الغابات الرطبة إلى الصحراء",
+chZonesH:"الأنواع حسب النطاق البيئي",chUicnH:"حالة الحفظ (UICN)",
+fhZones:"🏞️ النطاقات البيئية الخمسة",fhThreat:"⚠️ أنواع مهددة تحتاج الحماية",fhLatest:"🔭 آخر المشاهدات الميدانية",
+how1T:"🔎 استكشف الجرد",how1P:"ابحث في قاعدة بيانات 30 نوعاً بفلاتر العائلة والحالة والنطاق البيئي، وافتح البطاقة الكاملة لكل نوع.",
+how2T:"🗺️ تتبّع التوزيع",how2P:"انقر على أي ولاية في الخريطة التفاعلية لاكتشاف الأنواع المرصودة فيها، أو رشّح حسب نوع واحد.",
+how3T:"🤝 ساهم بمشاهدتك",how3P:"سجّل مشاهداتك الميدانية في قسم المشاهدات — تُحفظ في جهازك وتُثرى الخريطة تلقائياً.",
+invKicker:"قاعدة بيانات ميدانية",invTitle:"الجرد النباتي",invSub:"30 نوعاً حقيقياً من الفلورة التونسية بأوصاف علمية، مواطنها، استعمالاتها وحالة حفظها حسب القائمة الحمراء.",
+searchPh:"ابحث: الاسم العلمي، العربي أو الفرنسي…",endOnly:"متوطن فقط",reset:"إعادة الضبط",
+countTpl:"عرض <b>{n}</b> من أصل {t} نوع موثّق",noRes:"لا توجد نتائج مطابقة",noResHint:"جرّب تعديل كلمات البحث أو أعد ضبط الفلاتر.",viewCard:"عرض البطاقة",
+allFams:"كل العائلات",allSt:"كل حالات الحفظ",allZones:"كل النطاقات البيئية",allSp:"🌍 كل الأنواع",pickSp:"اختر النوع…",pickGov:"اختر الولاية…",
+kSp:"نوع نباتي",kFam:"عائلة نباتية",kGov:"ولاية مغطاة",kArea:"محمية طبيعية",kEnd:"نوع متوطن",kObs:"مشاهدة ميدانية",
+mapKicker:"خرائط جغرافية تفاعلية",mapTitle:"خريطة التوزيع",mapSub:"حجم الدائرة يعكس عدد الأنواع المرصودة في الولاية. انقر على أي دائرة لاستكشاف الأنواع، وأضف طبقة المحميات الطبيعية والمشاهدات الميدانية — بدّل بين الخلفيات (قمر صناعي، طبوغرافية، شوارع…) عبر زر الطبقات على الخريطة.",
+sideFilter:"تصفية حسب نوع",sideLegend:"دليل الألوان",sideStats:"الخريطة بالأرقام",
+tglAreas:"🛡️ المحميات الطبيعية (11)",tglObs:"🔭 مشاهدات ميدانية",
+lgN:"الولايات الشمالية",lgC:"ولايات الوسط",lgS:"الولايات الجنوبية",lgObs:"نقطة مشاهدة ميدانية",lgArea:"حديقة/محمية طبيعية",
+msObs:"مشاهدة",msSp:"نوع مرسوم",msGov:"ولاية",msArea:"محمية",
+mapNote:"🌐 تتطلب الخريطة والصور اتصالاً بالإنترنت عند أول فتح — كل البيانات محفوظة داخل الملف.",
+bmTitle:"اختيار خلفية الخريطة",bmPanelT:"خلفيات الخريطة",bmChipTpl:"الخلفية الحالية: {b}",
+mapOff:"🗺️ تعذّر تحميل الخريطة — يتطلب التطبيق اتصالاً بالإنترنت عند أول فتح.<br>تحقق من الاتصال ثم أعد تحميل الصفحة.",
+consKicker:"حماية الإرث النباتي",consTitle:"المحافظة على النباتات",consSub:"مقياس حالة الحفظ، التهديدات الرئيسية، شبكة المحميات الطبيعية، وإجراءات ملموسة لحماية الفلورة التونسية.",
+uicnNote:"مقياس الاتحاد الدولي لصون الطبيعة (UICN) كما هو مستعمل في قوائم تقييم الفلورة التونسية",
+fhThreats:"🔥 التهديدات الرئيسية",fhActs:"✅ إجراءات المحافظة",fhAreas:"🏞️ شبكة المحميات الطبيعية",
+th1t:"التوسع العمراني",th1p:"زحف البناء والطرقات على الكثبان الساحلية والماكي — الاختفاء الأسرع للموائل على السواحل.",
+th2t:"حرائق الغابات",th2p:"الصيف الحار الجاف يضاعف الحرائق في كروميرية، ولا تتجدد الغابة دائماً بنفس التركيبة.",
+th3t:"الرعي الجائر",th3p:"الدهس المتواصل يمنع تجدد الشتلات ويُفقِد السهوب من الحلفاء والشيح والزعتر غطاءها.",
+th4t:"التغير المناخي",th4p:"الجفاف المتواصل وإجهاد المياه يقلّصان الغابات الرطبة ويدفعان الأنواع نحو الشمال والارتفاع.",
+th5t:"الجمع غير المنظم",th5p:"النباتات الطبية والعطرية (الشيح، الزعتر، الأزير) تُجمع بجذورها دون حصص أو إعادة غرس.",
+th6t:"الأنواع الغازية",th6p:"الأغاف والتين الشوكي وغيرها تتنافس مع الأنواع المحلية وتغير تركيبة المجتمعات النباتية.",
+ac1t:"تقوية شبكة المحميات",ac1p:"11 حديقة وطنية ومحمية — منها إشكل المصنف تراثاً عالمياً — تغطي أخبار النظم البيئية الكبرى.",
+ac2t:"التأطير القانوني",ac2p:"قوائم الأنواع المحمية، مدونة الغابات ودراسات الأثر تقيّد الاقتلاع والتجارة غير المشروعة.",
+ac3t:"إعادة التشجير والإصلاح",ac3p:"مشاتل الأنواع المحلية، تثبيت الكثبان وإعادة توطين السيّاح والغزال في المحميات الجنوبية.",
+ac4t:"بنوك البذور",ac4p:"حفظ التنوع الوراثي للأنواع النادرة والمتوطنة في بنوك البذور والمجموعات الحية.",
+ac5t:"العلوم التشاركية",ac5p:"جرد مواطن ومشاهدات موثقة من الهواة والباحثين تُغذي خرائط التوزيع وتتبع التراجع.",
+ac6t:"التوعية والتربية",ac6p:"مسارات بيئية في الحدائق الوطنية، إدماج الفلورة في المناهج، وتثمين المنتجات المحلية.",
+goMap:"على الخريطة 🗺️",
+obsKicker:"علم المواطن",obsTitle:"المشاهدات الميدانية",obsSub:"سجّل ما رصدته في الطبيعة: النوع، الولاية، التاريخ وملاحظاتك. تُحفظ مشاهداتك في متصفحك وتظهر مباشرة على الخريطة.",
+formT:"إضافة مشاهدة جديدة",fSp:"النوع",fGov:"الولاية",fWho:"المراقب",fDate:"التاريخ",fNote:"ملاحظات",
+fCoords:"الإحداثيات WGS84 — درجة عشرية (اختياري)",fLat:"خط العرض (Y)",fLng:"خط الطول (X)",
+fPhotos:"صور الاتجاهات الأربعة (اختياري)",phHint:"اضغط على كل مربع لإضافة صورة في الاتجاه المقابل — تُضغط الصور تلقائياً وتُحفظ في جهازك.",
+dirN:"شمال",dirE:"شرق",dirS:"جنوب",dirW:"غرب",
+whoPh:"اسمك الكامل",notePh:"عدد الأفراد، الحالة الصحية، الموطن الدقيق…",latPh:"36.84390",lngPh:"10.18965",
+submit:"تسجيل المشاهدة",listT:"سجل المشاهدات",noObs:"لا مشاهدات بعد — استعمل النموذج لتسجيل أول مشاهدة.",noObs2:"لا مشاهدات بعد — سجّل أول مشاهدة!",
+myObs:"مشاهدتي",coordTp:"📍 إحداثيات",
+mDesc:"📖 الوصف",mHab:"🏞️ الموطن الطبيعي",mUse:"🧺 الاستعمالات",mFlow:"🌸 موسم الإزهار",
+mDistTpl:"📍 التوزيع الجغرافي — {g} ولاية · {o} مشاهدة",
+mOnMap:"عرض على الخريطة",mClose:"إغلاق",endemic:"⭐ نوع متوطن",
+spDocTpl:"{n} نوع موثّق",moreSpTpl:"+ {n} أنواع أخرى…",
+tReq:"⚠️ يرجى إكمال الحقول الإلزامية (النوع، الولاية، المراقب)",
+tOk:"🌿 تمت إضافة مشاهدتك بنجاح — شكراً لمساهمتك! تظهر الآن على الخريطة.",
+tDel:"تم حذف المشاهدة.",
+tCoordFmt:"⚠️ الإحداثيات غير صالحة — أدخل قيمتين رقميتين بالدرجة العشرية.",
+tCoordTun:"⚠️ الإحداثيات خارج حدود تونس (خط العرض 30–38 · خط الطول 7–13).",
+tQuota:"⚠️ مساحة التخزين ممتلئة — حُفظت المشاهدة دون الصور. احذف مشاهدات قديمة.",
+tLang:"🌐 تم تغيير اللغة بنجاح",tImg:"⚠️ الملف المختار ليس صورة.",
+noData:"لا توجد بيانات",nSpTpl:"🌿 {n} أنواع",ha:"هكتار",
+ftDesc:"مشروع تربوي في خدمة الإرث النباتي التونسي: نجرد الأنواع، نرسم خرائط توزيعها ونعمل على المحافظة عليها — نسخة مستقلة تعمل دون تثبيت أو خادم.",
+ftNav:"التنقل",ftSrc:"المصادر",
+ftSrcP:"الهورو (1959) · بوتييه-ألابيت (1979) · القوائم الحمراء UICN · الإدارة العامة للغابات · إحداثيات ونصوص استرشادية ذات نزعة تربوية.",
+ftB1:"© 2026 · جرد النباتات في تونس — Inventaire Botanique de Tunisie",ftB2:"نرسم الخرائط لكي نحافظ 🌿",
+navInv:"الجرد النباتي",navMap:"خريطة التوزيع",navCons:"المحافظة",navObs:"المشاهدات الميدانية",
+ariaLang:"اختيار اللغة",lbHint:"انقر في أي مكان للإغلاق"
+},
+fr:{
+title:"Inventaire botanique de Tunisie | Cartographie de la distribution et conservation",
+brandT:"Inventaire botanique de Tunisie",brandS:"Cartographie et conservation de la flore",
+tabHome:"Accueil",tabInv:"Inventaire",tabMap:"Carte",tabCons:"Conservation",tabObs:"Observations",
+heroBadge:"Projet sciences de la vie — République tunisienne",
+heroH1:"Inventaire des plantes de Tunisie<br><em>cartographie de leur distribution et conservation</em>",
+heroSub:"Une application interactive qui rassemble 30 espèces végétales réelles de la flore tunisienne, cartographie leur répartition à travers les 24 gouvernorats et met en lumière les aires protégées et les moyens de préserver ce patrimoine vivant.",
+heroCta1:"Explorer l'inventaire",heroCta2:"Voir la carte",heroCap:"🌿 Flore tunisienne : des forêts humides au désert",
+chZonesH:"Espèces par zone écologique",chUicnH:"Statut de conservation (UICN)",
+fhZones:"🏞️ Les cinq zones écologiques",fhThreat:"⚠️ Espèces menacées à protéger",fhLatest:"🔭 Dernières observations",
+how1T:"🔎 Explorez l'inventaire",how1P:"Cherchez dans la base de 30 espèces avec les filtres famille, statut et zone écologique, puis ouvrez la fiche complète.",
+how2T:"🗺️ Suivez la répartition",how2P:"Cliquez sur un gouvernorat de la carte interactive pour découvrir ses espèces, ou filtrez par espèce.",
+how3T:"🤝 Contribuez vos observations",how3P:"Enregistrez vos observations de terrain — elles restent sur votre appareil et enrichissent automatiquement la carte.",
+invKicker:"Base de données de terrain",invTitle:"Inventaire botanique",invSub:"30 espèces réelles de la flore tunisienne avec descriptions scientifiques, habitats, usages et statut de conservation selon la Liste rouge.",
+searchPh:"Rechercher : nom scientifique, arabe ou français…",endOnly:"Endémiques",reset:"Réinitialiser",
+countTpl:"Affichage de <b>{n}</b> espèces sur {t} documentées",noRes:"Aucun résultat correspondant",noResHint:"Essayez de modifier la recherche ou réinitialisez les filtres.",viewCard:"Voir la fiche",
+allFams:"Toutes les familles",allSt:"Tous les statuts",allZones:"Toutes les zones",allSp:"🌍 Toutes les espèces",pickSp:"Choisir l'espèce…",pickGov:"Choisir le gouvernorat…",
+kSp:"Espèces végétales",kFam:"Familles botaniques",kGov:"Gouvernorats couverts",kArea:"Aires protégées",kEnd:"Espèces endémiques",kObs:"Observations de terrain",
+mapKicker:"Cartographie interactive",mapTitle:"Carte de répartition",mapSub:"La taille du cercle reflète le nombre d'espèces recensées dans le gouvernorat. Cliquez sur un cercle pour explorer les espèces, ajoutez les couches aires protégées et observations — changez de fond (satellite, topo, rues…) via le bouton calques.",
+sideFilter:"Filtrer par espèce",sideLegend:"Légende des couleurs",sideStats:"La carte en chiffres",
+tglAreas:"🛡️ Aires protégées (11)",tglObs:"🔭 Observations de terrain",
+lgN:"Gouvernorats du Nord",lgC:"Gouvernorats du Centre",lgS:"Gouvernorats du Sud",lgObs:"Point d'observation",lgArea:"Parc / réserve naturelle",
+msObs:"observations",msSp:"espèces cartographiées",msGov:"gouvernorats",msArea:"aires protégées",
+mapNote:"🌐 La carte et les photos nécessitent Internet au premier chargement — toutes les données sont intégrées au fichier.",
+bmTitle:"Choisir le fond de carte",bmPanelT:"Fonds de carte",bmChipTpl:"Fond actuel : {b}",
+mapOff:"🗺️ Impossible de charger la carte — l'application nécessite Internet au premier chargement.<br>Vérifiez la connexion puis rechargez la page.",
+consKicker:"Protéger le patrimoine végétal",consTitle:"Conservation des plantes",consSub:"Échelle de conservation, menaces principales, réseau d'aires protégées et actions concrètes pour protéger la flore tunisienne.",
+uicnNote:"Catégories de l'Union internationale pour la conservation de la nature (UICN) utilisées dans les listes rouges de la flore tunisienne",
+fhThreats:"🔥 Menaces principales",fhActs:"✅ Actions de conservation",fhAreas:"🏞️ Réseau d'aires protégées",
+th1t:"Urbanisation",th1p:"L'avancée du bâti et des routes sur les dunes littorales et le maquis — la disparition la plus rapide des habitats côtiers.",
+th2t:"Incendies de forêt",th2p:"L'été chaud et sec multiplie les feux en Kroumirie ; la forêt ne se régénère pas toujours avec la même composition.",
+th3t:"Surpâturage",th3p:"Le piétinement continu empêche la régénération des semis et appauvrit les steppes en alfa, armoise et thym.",
+th4t:"Changement climatique",th4p:"Sécheresses persistantes et stress hydrique réduisent les forêts humides et repoussent les espèces vers le nord et l'altitude.",
+th5t:"Cueillette non régulée",th5p:"Les plantes médicinales et aromatiques (armoise, thym, romarin) sont arrachées avec leurs racines sans quotas ni replantation.",
+th6t:"Espèces invasives",th6p:"Agave, figuier de Barbarie et autres concurrencent les espèces locales et modifient les communautés végétales.",
+ac1t:"Renforcer le réseau d'aires protégées",ac1p:"11 parcs nationaux et réserves — dont l'Ichkeul, classé patrimoine mondial — couvrent les grands écosystèmes.",
+ac2t:"Encadrement juridique",ac2p:"Listes d'espèces protégées, code forestier et études d'impact restreignent l'arrachage et le commerce illégal.",
+ac3t:"Reboisement et restauration",ac3p:"Pépinières d'espèces locales, fixation des dunes et réintroduction de l'oryx et de la gazelle dans les réserves du Sud.",
+ac4t:"Banques de semences",ac4p:"Conservation de la diversité génétique des espèces rares et endémiques en banques de semences et collections vivantes.",
+ac5t:"Sciences participatives",ac5p:"Inventaires d'habitats et observations documentées par amateurs et chercheurs nourrissent les cartes de répartition.",
+ac6t:"Sensibilisation et éducation",ac6p:"Sentiers écologiques dans les parcs nationaux, intégration de la flore dans les programmes et valorisation des produits locaux.",
+goMap:"Sur la carte 🗺️",
+obsKicker:"Science citoyenne",obsTitle:"Observations de terrain",obsSub:"Enregistrez ce que vous observez dans la nature : espèce, gouvernorat, date et notes. Vos observations sont conservées dans votre navigateur et s'affichent directement sur la carte.",
+formT:"Ajouter une nouvelle observation",fSp:"Espèce",fGov:"Gouvernorat",fWho:"Observateur",fDate:"Date",fNote:"Notes",
+fCoords:"Coordonnées WGS84 — degrés décimaux (optionnel)",fLat:"Latitude (Y)",fLng:"Longitude (X)",
+fPhotos:"Photos des quatre directions (optionnel)",phHint:"Cliquez sur chaque case pour ajouter une photo dans la direction correspondante — compression automatique et sauvegarde locale.",
+dirN:"Nord",dirE:"Est",dirS:"Sud",dirW:"Ouest",
+whoPh:"Votre nom complet",notePh:"Nombre d'individus, état sanitaire, habitat précis…",latPh:"36.84390",lngPh:"10.18965",
+submit:"Enregistrer l'observation",listT:"Journal des observations",noObs:"Aucune observation — utilisez le formulaire pour la première.",noObs2:"Aucune observation — enregistrez la première !",
+myObs:"Mon observation",coordTp:"📍 Coordonnées",
+mDesc:"📖 Description",mHab:"🏞️ Habitat naturel",mUse:"🧺 Usages",mFlow:"🌸 Floraison",
+mDistTpl:"📍 Répartition géographique — {g} gouvernorats · {o} observations",
+mOnMap:"Voir sur la carte",mClose:"Fermer",endemic:"⭐ Espèce endémique",
+spDocTpl:"{n} espèce(s) documentée(s)",moreSpTpl:"+ {n} autres espèces…",
+tReq:"⚠️ Veuillez compléter les champs obligatoires (espèce, gouvernorat, observateur)",
+tOk:"🌿 Votre observation a bien été ajoutée — merci pour votre contribution ! Elle apparaît maintenant sur la carte.",
+tDel:"Observation supprimée.",
+tCoordFmt:"⚠️ Coordonnées invalides — saisissez deux valeurs numériques en degrés décimaux.",
+tCoordTun:"⚠️ Coordonnées hors de Tunisie (latitude 30–38 · longitude 7–13).",
+tQuota:"⚠️ Stockage plein — observation enregistrée sans les photos. Supprimez d'anciennes observations.",
+tLang:"🌐 Langue changée avec succès",tImg:"⚠️ Le fichier choisi n'est pas une image.",
+noData:"Aucune donnée",nSpTpl:"🌿 {n} espèces",ha:"hectares",
+ftDesc:"Projet pédagogique au service du patrimoine végétal tunisien : nous inventorions les espèces, cartographions leur répartition et œuvrons à leur conservation — version autonome sans installation ni serveur.",
+ftNav:"Navigation",ftSrc:"Sources",
+ftSrcP:"Le Houérou (1959) · Pottier-Alapetite (1979) · Listes rouges UICN · Direction générale des Forêts · coordonnées et textes à vocation pédagogique.",
+ftB1:"© 2026 · Inventaire botanique de Tunisie — جرد النباتات في تونس",ftB2:"Cartographier pour conserver 🌿",
+navInv:"Inventaire botanique",navMap:"Carte de répartition",navCons:"Conservation",navObs:"Observations de terrain",
+ariaLang:"Choix de la langue",lbHint:"Cliquez n'importe où pour fermer"
+},
+en:{
+title:"Plant Inventory of Tunisia | Distribution Mapping and Conservation",
+brandT:"Plant Inventory of Tunisia",brandS:"Mapping distribution & conservation",
+tabHome:"Home",tabInv:"Inventory",tabMap:"Map",tabCons:"Conservation",tabObs:"Observations",
+heroBadge:"Life sciences project — Republic of Tunisia",
+heroH1:"Plant Inventory of Tunisia<br><em>mapping distribution and conservation</em>",
+heroSub:"An interactive application gathering 30 real plant species of the Tunisian flora, mapping their distribution across the 24 governorates and highlighting protected areas and ways to preserve this living heritage.",
+heroCta1:"Explore the inventory",heroCta2:"View the map",heroCap:"🌿 Tunisian flora: from humid forests to the desert",
+chZonesH:"Species by ecological zone",chUicnH:"Conservation status (IUCN)",
+fhZones:"🏞️ The five ecological zones",fhThreat:"⚠️ Threatened species needing protection",fhLatest:"🔭 Latest field records",
+how1T:"🔎 Explore the inventory",how1P:"Search the database of 30 species with family, status and ecological zone filters, and open each full record.",
+how2T:"🗺️ Track the distribution",how2P:"Click any governorate on the interactive map to discover its species, or filter by a single species.",
+how3T:"🤝 Contribute your records",how3P:"Log your field observations in the Observations section — they are saved on your device and enrich the map automatically.",
+invKicker:"Field database",invTitle:"Botanical inventory",invSub:"30 real species of the Tunisian flora with scientific descriptions, habitats, uses and conservation status according to the Red List.",
+searchPh:"Search: scientific, Arabic or French name…",endOnly:"Endemics only",reset:"Reset filters",
+countTpl:"Showing <b>{n}</b> of {t} documented species",noRes:"No matching results",noResHint:"Try changing the search terms or reset the filters.",viewCard:"View record",
+allFams:"All families",allSt:"All conservation statuses",allZones:"All ecological zones",allSp:"🌍 All species",pickSp:"Choose a species…",pickGov:"Choose a governorate…",
+kSp:"Plant species",kFam:"Botanical families",kGov:"Governorates covered",kArea:"Protected areas",kEnd:"Endemic species",kObs:"Field records",
+mapKicker:"Interactive mapping",mapTitle:"Distribution map",mapSub:"Circle size reflects the number of species recorded in the governorate. Click any circle to explore species, and add the protected areas and field records layers — switch basemaps (satellite, topo, streets…) with the layers button.",
+sideFilter:"Filter by species",sideLegend:"Colour guide",sideStats:"The map in numbers",
+tglAreas:"🛡️ Protected areas (11)",tglObs:"🔭 Field records",
+lgN:"Northern governorates",lgC:"Central governorates",lgS:"Southern governorates",lgObs:"Field record point",lgArea:"National park / reserve",
+msObs:"records",msSp:"species mapped",msGov:"governorates",msArea:"protected areas",
+mapNote:"🌐 The map and photos require Internet on first load — all data is stored inside the file.",
+bmTitle:"Choose the basemap",bmPanelT:"Basemaps",bmChipTpl:"Current basemap: {b}",
+mapOff:"🗺️ Unable to load the map — the application requires Internet on first load.<br>Check the connection then reload the page.",
+consKicker:"Protecting the botanical heritage",consTitle:"Plant conservation",consSub:"Conservation scale, main threats, network of protected areas and concrete actions to protect the Tunisian flora.",
+uicnNote:"Categories of the International Union for Conservation of Nature (IUCN) as used in the Tunisian flora red lists",
+fhThreats:"🔥 Main threats",fhActs:"✅ Conservation actions",fhAreas:"🏞️ Protected areas network",
+th1t:"Urban sprawl",th1p:"Buildings and roads encroaching on coastal dunes and maquis — the fastest habitat loss along the shores.",
+th2t:"Forest fires",th2p:"Hot dry summers multiply fires in Kroumirie, and forests do not always regenerate with the same composition.",
+th3t:"Overgrazing",th3p:"Continuous trampling prevents seedling renewal and strips the steppes of alfa, wormwood and thyme cover.",
+th4t:"Climate change",th4p:"Persistent drought and water stress shrink humid forests and push species northwards and upslope.",
+th5t:"Unregulated harvesting",th5p:"Medicinal and aromatic plants (wormwood, thyme, rosemary) are uprooted whole without quotas or replanting.",
+th6t:"Invasive species",th6p:"Agave, prickly pear and others compete with native species and alter plant communities.",
+ac1t:"Strengthen the protected-area network",ac1p:"11 national parks and reserves — including Ichkeul, a World Heritage site — cover the major ecosystems.",
+ac2t:"Legal framework",ac2p:"Protected species lists, the forest code and impact studies restrict uprooting and illegal trade.",
+ac3t:"Reforestation and restoration",ac3p:"Nurseries of local species, dune stabilization and reintroduction of oryx and gazelle in southern reserves.",
+ac4t:"Seed banks",ac4p:"Preserving the genetic diversity of rare and endemic species in seed banks and living collections.",
+ac5t:"Citizen science",ac5p:"Habitat inventories and documented observations from amateurs and researchers feed distribution maps and track decline.",
+ac6t:"Awareness and education",ac6p:"Ecological trails in national parks, flora in school curricula and promotion of local products.",
+goMap:"On the map 🗺️",
+obsKicker:"Citizen science",obsTitle:"Field observations",obsSub:"Record what you spot in nature: species, governorate, date and notes. Your records are saved in your browser and appear directly on the map.",
+formT:"Add a new record",fSp:"Species",fGov:"Governorate",fWho:"Observer",fDate:"Date",fNote:"Notes",
+fCoords:"WGS84 coordinates — decimal degrees (optional)",fLat:"Latitude (Y)",fLng:"Longitude (X)",
+fPhotos:"Four-direction photos (optional)",phHint:"Click each box to add a photo in the matching direction — images are compressed automatically and saved locally.",
+dirN:"North",dirE:"East",dirS:"South",dirW:"West",
+whoPh:"Your full name",notePh:"Number of individuals, health condition, precise habitat…",latPh:"36.84390",lngPh:"10.18965",
+submit:"Save the record",listT:"Records log",noObs:"No records yet — use the form to add the first one.",noObs2:"No records yet — add the first one!",
+myObs:"My record",coordTp:"📍 Coordinates",
+mDesc:"📖 Description",mHab:"🏞️ Natural habitat",mUse:"🧺 Uses",mFlow:"🌸 Flowering season",
+mDistTpl:"📍 Geographic distribution — {g} governorates · {o} records",
+mOnMap:"View on the map",mClose:"Close",endemic:"⭐ Endemic species",
+spDocTpl:"{n} documented species",moreSpTpl:"+ {n} more species…",
+tReq:"⚠️ Please complete the required fields (species, governorate, observer)",
+tOk:"🌿 Your record was added successfully — thank you for contributing! It now appears on the map.",
+tDel:"Record deleted.",
+tCoordFmt:"⚠️ Invalid coordinates — enter two numeric values in decimal degrees.",
+tCoordTun:"⚠️ Coordinates outside Tunisia (latitude 30–38 · longitude 7–13).",
+tQuota:"⚠️ Storage full — record saved without photos. Delete older records.",
+tLang:"🌐 Language changed successfully",tImg:"⚠️ The selected file is not an image.",
+noData:"No data",nSpTpl:"🌿 {n} species",ha:"hectares",
+ftDesc:"An educational project serving the Tunisian botanical heritage: we inventory species, map their distribution and work to conserve them — standalone version requiring no installation or server.",
+ftNav:"Navigation",ftSrc:"Sources",
+ftSrcP:"Le Houérou (1959) · Pottier-Alapetite (1979) · IUCN Red Lists · General Directorate of Forests · coordinates and texts for educational purposes.",
+ftB1:"© 2026 · Plant Inventory of Tunisia — جرد النباتات في تونس",ftB2:"Mapping to conserve 🌿",
+navInv:"Botanical inventory",navMap:"Distribution map",navCons:"Conservation",navObs:"Field observations",
+ariaLang:"Language selection",lbHint:"Click anywhere to close"
+}};
+const IUCN_EN={LC:"Least concern",NT:"Near threatened",VU:"Vulnerable",EN:"Endangered",CR:"Critically endangered"};
+const ZGROUP={"الشمال":{fr:"Nord",en:"North"},"الوسط":{fr:"Centre",en:"Centre"},"الجنوب":{fr:"Sud",en:"South"}};
+const BIO={
+"رطب وشبه رطب":{fr:"Humide à sub-humide",en:"Humid to sub-humid"},
+"رطب":{fr:"Humide",en:"Humid"},
+"رطب إلى شبه رطب":{fr:"Humide à sub-humide",en:"Humid to sub-humid"},
+"شبه رطب إلى شبه جاف":{fr:"Sub-humide à semi-aride",en:"Sub-humid to semi-arid"},
+"شبه جاف":{fr:"Semi-aride",en:"Semi-arid"},
+"شبه جاف إلى جاف":{fr:"Semi-aride à aride",en:"Semi-arid to arid"},
+"شبه جاف ساحلي":{fr:"Semi-aride côtier",en:"Coastal semi-arid"},
+"جاف إلى صحراوي":{fr:"Aride à saharien",en:"Arid to Saharan"},
+"صحراوي":{fr:"Saharien",en:"Saharan"}};
+const ZNX={
+"الغابات الرطبة":{fr:"Forêts humides",en:"Humid forests",d_fr:"Kroumirie et Mogod : chêne-liège, chêne zéen et bruyère arborescente — le cœur de la biodiversité tunisienne.",d_en:"Kroumirie and Mogod: cork oak, zeen oak and tree heath — the heart of Tunisia's biodiversity."},
+"الجبال والأدغال":{fr:"Montagnes et maquis",en:"Mountains and maquis",d_fr:"Dorsale atlasique et ses versants : pin d'Alep, thuya de Berbérie et oléastre.",d_en:"The Atlas Dorsal and its slopes: Aleppo pine, Berber thuja and wild olive."},
+"السهوب والمراعي الجافة":{fr:"Steppes et parcours arides",en:"Steppes and dry rangelands",d_fr:"Nappes d'alfa, d'armoise blanche et de thym sauvage — domaine de l'élevage traditionnel.",d_en:"Alfa, white wormwood and wild thyme steppes — the traditional grazing lands."},
+"الواحات والصحراء":{fr:"Oasis et désert",en:"Oases and desert",d_fr:"Palmiers dattiers, pistachiers de l'Atlas et arbres de fixation des dunes.",d_en:"Date palms, Atlas pistachios and dune-stabilizing trees."},
+"السواحل والأراضي الرطبة":{fr:"Côtes et zones humides",en:"Coasts and wetlands",d_fr:"Dunes de lis de mer, sebkhas à nitrarie et rives d'oléandre et de tamaris.",d_en:"Sea-daffodil dunes, nitre-bush salt flats and oleander and tamarisk banks."}};
+/* ─── Helpers i18n ─── */
+function T(k){const d=UI[LANG]||UI.ar;return d[k]!=null?d[k]:(UI.ar[k]!=null?UI.ar[k]:k)}
+function TT(k,o){return T(k).replace(/\{(\w+)\}/g,(m,x)=>o&&o[x]!=null?o[x]:m)}
+function spName(s){if(LANG==="ar")return s.a;if(LANG==="fr")return s.f||s.a;const x=SPX[s.s];return (x&&x.en&&x.en.n)||s.f||s.a}
+function spSub(s){return LANG==="ar"?s.f:(LANG==="fr"?s.a:s.f)}
+function spTxt(s,f){if(LANG==="ar")return s[f]||"";const x=SPX[s.s];if(!x)return s[f]||"";if(LANG==="fr")return (x.fr&&x.fr[f])||s[f]||"";return (x.en&&x.en[f])||(x.fr&&x.fr[f])||s[f]||""}
+function zoneName(z){if(LANG==="ar")return z;const x=ZNX[z];return x?(LANG==="fr"?x.fr:x.en):z}
+function zoneDesc(z){if(LANG==="ar")return ZONES[z]?ZONES[z].d:"";const x=ZNX[z];return x?(LANG==="fr"?x.d_fr:x.d_en):""}
+function zoneGroupName(zg){if(LANG==="ar")return zg;const x=ZGROUP[zg];return x?(LANG==="fr"?x.fr:x.en):zg}
+function govName(g){if(!g)return"";return LANG==="ar"?g[1]:g[2]}
+function iucnName(k){const r=IUCN[k];if(!r)return k;if(LANG==="ar")return r.ar;if(LANG==="fr")return r.fr;return IUCN_EN[k]||r.fr}
+function bioName(b){if(LANG==="ar")return b;const x=BIO[b];return x?(LANG==="fr"?x.fr:x.en):b}
+function areaName(a){if(LANG==="ar")return a.n;if(LANG==="fr")return a.nf;const x=ARX[a.id];return (x&&x.en&&x.en.n)||a.nf}
+function areaType(a){if(LANG==="ar")return a.t;const x=ARX[a.id];return LANG==="fr"?((x&&x.fr&&x.fr.t)||a.t):((x&&x.en&&x.en.t)||a.t)}
+function areaDesc(a){if(LANG==="ar")return a.d;const x=ARX[a.id];return LANG==="fr"?((x&&x.fr&&x.fr.d)||a.d):((x&&x.en&&x.en.d)||a.d)}
+function areaGov(a){const g=GOVS.find(x=>x[1]===a.g);return g?govName(g):a.g}
+function bmName(b){return LANG==="ar"?b.ar:(LANG==="fr"?(b.fr||b.ar):(b.en||b.fr||b.ar))}
+function dateLocale(){return LANG==="ar"?"ar-TN-u-nu-latn":(LANG==="fr"?"fr-FR":"en-GB")}
+</script>
+<script>
+/* ═══════════ TRADUCTIONS ESPÈCES (FR / EN) ═══════════ */
+const SPX={
+"Quercus suber":{
+ fr:{n:"Chêne-liège",d:"Arbre majestueux à feuillage persistant pouvant atteindre 20 m, couvert d'une écorce subéreuse épaisse dont on extrait le liège commercial. Il forme avec le chêne zéen les forêts les plus humides de Tunisie, le long de la Kroumirie et du Mogod, et abrite un biodiversité unique dans le pays.",h:"Montagnes humides du Nord sur sols siliceux profonds, entre 300 et 1 000 m.",u:"Liège, fixation des sols, bois de feu, pâturages de chênaie",w:"Avril – Mai"},
+ en:{n:"Cork oak",d:"A majestic evergreen tree reaching 20 m, clothed in thick corky bark from which commercial cork is harvested. Together with the zeen oak it forms Tunisia's most humid forests along Kroumirie and Mogod, sheltering biological diversity found nowhere else in the country.",h:"Humid northern mountains on deep siliceous soils, between 300 and 1,000 m.",u:"Cork, soil stabilization, fuelwood, oak woodlands grazing",w:"April – May"}},
+"Quercus canariensis":{
+ fr:{n:"Chêne zéen",d:"Grand arbre d'ombre aux grandes feuilles dentées qui virent à l'or en automne, croissant dans les vallons humides de la Kroumirie. Il joue un rôle clé dans la conservation de l'humidité du sol et nourrit une vaste chaîne d'insectes et d'oiseaux, mais ses surfaces ont fortement régressé face au liège et aux cultures.",h:"Vallons profonds et versants humides de la Kroumirie et du Mogod.",u:"Ombre et couvert forestier, bois d'œuvre locaux",w:"Avril – Juin"},
+ en:{n:"Zeen oak (Algerian oak)",d:"A grand shade tree with large toothed leaves that turn golden in autumn, growing in the humid ravines of Kroumirie. It plays a key role in preserving soil moisture and feeds a wide food web of insects and birds, yet its stands have greatly declined before cork and cultivation.",h:"Deep ravines and humid slopes in Kroumirie and Mogod.",u:"Shade and forest cover, local timber",w:"April – June"}},
+"Pinus halepensis":{
+ fr:{n:"Pin d'Alep",d:"Le pin le plus répandu de Tunisie, couvrant les versants de la Dorsale et les montagnes du Centre et du Nord. Arbre résistant à la sécheresse et aux sols pauvres, il est le pilier des grands programmes de reboisement tunisiens et fournit une gomme aromatique et des pignons libérés par ses cônes luisants.",h:"Versants calcaires du Nord au Sud-Est, jusqu'à 1 400 m.",u:"Reboisement, gomme, bois, miel de pin",w:"Avril – Mai"},
+ en:{n:"Aleppo pine",d:"Tunisia's most widespread pine, covering the Dorsal slopes and the mountains of the Centre and North. Drought- and poor-soil tolerant, it underpins the country's greatest afforestation programmes and yields aromatic resin and pine nuts released by its glossy cones.",h:"Limestone mountain slopes from North to South-East, up to 1,400 m.",u:"Afforestation, resin, timber, pine honey",w:"April – May"}},
+"Tetraclinis articulata":{
+ fr:{n:"Thuya de Berbérie (Araar)",d:"Conifère rare du bassin méditerranéen aux feuilles articulées et au bois doré parfumé, prisé dans l'artisanat traditionnel. Il supporte les milieux semi-arides les plus rudes et forme des forêts fragiles, menacées par les incendies et la coupe.",h:"Versants semi-arides et montagnes calcaires basses.",u:"Bois sculpté aromatique, médecine, fixation des versants",w:"Février – Avril"},
+ en:{n:"Berber thuja (Araar)",d:"A conifer rare in the Mediterranean basin, with jointed scale-like leaves and golden scented wood prized in traditional crafts. It withstands the harshest semi-arid sites and forms fragile woodlands threatened by fire and cutting.",h:"Semi-arid slopes and low limestone mountains.",u:"Scented carved wood, medicine, slope stabilization",w:"February – April"}},
+"Juniperus phoenicea":{
+ fr:{n:"Genévrier rouge",d:"Arbrisseau ou arbre sombre aux fruits globuleux rouges mûrissant en automne, qui couronne les dunes fixées et les montagnes littorales. Il prospère dans les stations rocheuses les plus dures, fixe les sables et était jadis réputé en médecine digestive.",h:"Dunes fixées, montagnes côtières, zones arides de l'intérieur.",u:"Médecine, parfumerie, fixation des dunes",w:"Avril – Juin"},
+ en:{n:"Phoenician juniper",d:"A dark shrub or small tree with globose red fruits ripening in autumn, crowning stabilized dunes and coastal mountains. It thrives in the harshest rocky sites, stabilizes sands and was traditionally valued as a digestive remedy.",h:"Fixed dunes, coastal mountains, arid inland areas.",u:"Medicine, aromatic uses, dune stabilization",w:"April – June"}},
+"Olea europaea var. oleaster":{
+ fr:{n:"Oléastre (olivier sauvage)",d:"L'ancêtre sauvage de l'olivier cultivé, poussant en arbrisseau épineux dans les maquis clairs et sur les versants de la Dorsale. Feuilles vert-gris dessous et petits fruits amers ; il constitue un réservoir génétique précieux pour l'amélioration des variétés tunisiennes et la résistance à la sécheresse et aux maladies.",h:"Maquis clairs, bords de chemins et terrains délaissés du Nord et du Centre.",u:"Porte-greffe pour l'olivier, résistance à la sécheresse, bois de feu",w:"Mai – Juin"},
+ en:{n:"Wild olive (Oleaster)",d:"The wild ancestor of the cultivated olive, growing as a thorny shrub in open maquis and on Dorsal slopes. Pale-green leaf undersides and small bitter fruits make it a precious gene pool for improving Tunisian olive varieties and resistance to drought and disease.",h:"Open maquis, roadsides and neglected land in the North and Centre.",u:"Olive rootstock, drought resistance, fuelwood",w:"May – June"}},
+"Ceratonia siliqua":{
+ fr:{n:"Caroubier",d:"Arbre sempervirent à ombre douce et longues gousses noires sucrées, parmi les plus anciens arbres utiles de la Méditerranée. Il croît dans les maquis du Nord et est apprécié comme aliment du bétail et des hommes en années de disette, tout en fixant l'azote et enrichissant les sols pauvres.",h:"Maquis et parcours montagnards du Nord et du Centre.",u:"Alimentation (caroube), industrie, fourrage",w:"Août – Octobre"},
+ en:{n:"Carob tree",d:"An evergreen tree of gentle shade and long sweet black pods, among the Mediterranean's oldest useful trees. It grows in northern maquis and is prized as food for livestock and people in lean years, while fixing nitrogen and enriching poor soils.",h:"Maquis and mountain rangelands of the North and Centre.",u:"Food (carob), industry, fodder",w:"August – October"}},
+"Pistacia atlantica":{
+ fr:{n:"Pistachier de l'Atlas",d:"Le géant des arbres méridionaux : ses racines plongent profondément en quête d'eau et son âme peut atteindre plusieurs siècles. Ses fruits, les « khaleb », entrent dans les douceurs traditionnelles ; témoin vivant des anciennes vallées oasiennes, il est classé menacé du fait de sa faible régénération.",h:"Lits d'oueds, sebkhas sèches et lisières des oasis du Sud.",u:"Alimentation (khaleb), médecine, ombrage du bétail",w:"Avril – Mai"},
+ en:{n:"Atlas pistachio",d:"The giant of southern trees: its roots plunge deep in search of water and its lifespan spans centuries. Its fruits, the 'khaleb', feature in traditional sweets; a living witness of ancient oasis rivers, it is listed as threatened due to poor natural regeneration.",h:"Wadi beds, dry salt flats and oasis margins in the South.",u:"Food (khaleb), medicine, livestock shade",w:"April – May"}},
+"Ziziphus lotus":{
+ fr:{n:"Jujubier sauvage (Sedra)",d:"Arbrisseau épineux très ramifié formant des ceintures naturelles qui fixent les sables et protègent les parcours de l'envahissement. Cité dans le patrimoine arabe sous plusieurs noms, ses petits fruits « nabk » sont comestibles et ses racines profondes lui confèrent une résistance remarquable à la sécheresse.",h:"Steppes arides, sables littoraux et terres laissées en friche.",u:"Alimentation, fixation des sables, clôture vivante",w:"Mai – Juillet"},
+ en:{n:"Lotus jujube (Sedra)",d:"A heavily branched thorny shrub forming natural belts that fix shifting sands and shield rangelands from drift. Cited under several names in Arab heritage, its small edible 'nabk' fruits and deep roots give it remarkable drought resistance.",h:"Arid steppes, coastal sands and fallow land.",u:"Food, sand fixation, living fence",w:"May – July"}},
+"Acacia tortilis subsp. raddiana":{
+ fr:{n:"Acacia gommier (Taleh)",d:"L'arbre-ombre emblématique de la savane saharienne, à couronne parasol aplatie ; c'est l'un des derniers arbres à défier le désert. Ses forêts méridionales sont une artère vitale pour les éleveurs, les abeilles et la gazelle, et il a été réintroduit avec succès au parc de Bou-Hedma.",h:"Steppes sahariennes et lits d'oueds du Sud.",u:"Fourrage, gomme arabique, ombrage, bois de feu",w:"Avril – Juin"},
+ en:{n:"Umbrella thorn acacia (Taleh)",d:"The iconic shade tree of Saharan savannas with its flattened umbrella crown; one of the last trees to defy the desert. Its southern stands are a lifeline for herders, bees and gazelle, and it has been successfully reintroduced in Bou-Hedma National Park.",h:"Saharan steppes and southern wadi beds.",u:"Fodder, gum arabic, shade, fuelwood",w:"April – June"}},
+"Retama raetam":{
+ fr:{n:"Retam (genêt blanc)",d:"Arbrisseau désertique élégant aux rameaux verts fins et aux fleurs blanches parfumées qui couvrent les vallées du Sud au printemps. Sa prodigieuse adaptation à la soif — feuilles minuscules — en fait la base de l'apiculture saharienne traditionnelle.",h:"Dunes fixées, vallées désertiques et terrains sableux.",u:"Médecine, fourrage, fixation des sables, apiculture",w:"Février – Avril"},
+ en:{n:"White broom (Retem)",d:"An elegant desert shrub with slender green shoots and fragrant white flowers blanketing southern wadis in spring. Its prodigious adaptation to thirst — minute leaves — underpins traditional Saharan beekeeping.",h:"Fixed dunes, desert wadis and sandy ground.",u:"Medicine, fodder, sand fixation, beekeeping",w:"February – April"}},
+"Stipa tenacissima":{
+ fr:{n:"Alfa (Sparto)",d:"Graminée steppique en touffes denses aux longues feuilles fines formant les vastes nappes d'alfa des hauts plateaux du Centre et de l'Ouest. Ressource historique des cordages et du papier, elle constitue surtout un rempart contre l'érosion des sols dans les zones semi-arides menacées de désertification.",h:"Hauts plateaux et versants semi-arides sur sols calcaires.",u:"Cordages et papier traditionnels, protection des sols, artisanat",w:"Mai – Juillet"},
+ en:{n:"Alfa (Esparto grass)",d:"A dense tufted steppe grass with long narrow leaves forming the vast alfa steppes of the central and western high plateaus. A historic resource for ropes and paper, it stands above all as a rampart against soil erosion in the desertification-prone semi-arid belt.",h:"High plateaus and semi-arid slopes on limestone soils.",u:"Traditional ropes and paper, soil protection, crafts",w:"May – July"}},
+"Lygeum spartum":{
+ fr:{n:"Albardine (Sparto piquant)",d:"Graminée steppique plus délicate que l'alfa, croissant sur les sols salés et gypseux que d'autres délaissent. Elle compose avec ses compagnes les pelouses vert pâle des steppes du Centre et sert de bio-indicateur de sols singuliers à forte valeur de conservation.",h:"Sols salés et gypseux des steppes de l'intérieur.",u:"Cordages, artisanat, fixation des sols fragiles",w:"Avril – Juin"},
+ en:{n:"Albardine grass",d:"A steppe grass more delicate than alfa, growing on the salty and gypseous soils others avoid. Together with its companions it forms the pale-green lawns of the central steppes and acts as a bio-indicator of singular soils of high conservation value.",h:"Saline and gypseous soils of the inland steppes.",u:"Cordage, traditional crafts, stabilizing fragile soils",w:"April – June"}},
+"Artemisia herba-alba":{
+ fr:{n:"Armoise blanche (Chih)",d:"Petit sous-arbrisseau aromatique argenté, l'une des plantes médicinales les plus célèbres du monde arabe pour ses vertus digestives. La pression des éleveurs et de la cueillette commerciale l'a fortement raréfiée, imposant une régulation de la récolte dans les steppes du Centre et de l'Ouest.",h:"Steppes semi-arides et parcours montagnards.",u:"Médecine (chih), aromate, usages traditionnels",w:"Octobre – Décembre"},
+ en:{n:"White wormwood (Shih)",d:"A small silvery aromatic dwarf shrub, one of the most famous medicinal plants of the Arab world for its digestive virtues. Grazing pressure and commercial harvesting have made it scarce, requiring regulated harvest in the central and western steppes.",h:"Semi-arid steppes and mountain rangelands.",u:"Medicine (shih), aromatic, traditional uses",w:"October – December"}},
+"Thymelaea hirsuta":{
+ fr:{n:"Passerine hirsute (Mettanan)",d:"Arbrisseau steppique dense aux feuilles grisâtres menues, qui brave le surpâturage et forme des communautés sempervirentes dans les steppes arides. Ses fibres servaient autrefois aux cordages et elle constitue un barrage naturel contre l'avancée des sables vers les parcours.",h:"Steppes arides, sables littoraux et chotts intérieurs.",u:"Fibres, fourrage médiocre, fixation des sables",w:"Octobre – Décembre"},
+ en:{n:"Hairy thymelaea (Mettanan)",d:"A dense steppe shrub with fine greyish leaves that withstands overgrazing and builds evergreen communities in the arid steppes. Its fibres once served for cordage and it acts as a natural barrier against sand encroachment on rangelands.",h:"Arid steppes, coastal sands and inland salt flats.",u:"Fibres, poor fodder, sand fixation",w:"October – December"}},
+"Salvia rosmarinus":{
+ fr:{n:"Romarin (Azir)",d:"Arbrisseau aromatique fleurissant presque toute l'année, couvrant les versants de la Dorsale et du Nord de son parfum caractéristique et de ses fleurs bleu clair. L'une des plantes aromatiques historiquement exportées de Tunisie, dont la cueillette sauvage intense impose la protection des stations d'origine.",h:"Versants montagneux et maquis clairs.",u:"Aromate, médecine, condiment, exportation",w:"Toute l'année (pic : février – avril)"},
+ en:{n:"Rosemary (Azir)",d:"An aromatic shrub flowering almost all year round, clothing the Dorsal and northern slopes in its distinctive scent and pale-blue flowers. One of Tunisia's historically exported aromatic plants; intense wild gathering calls for protecting its original stands.",h:"Mountain slopes and open maquis.",u:"Aromatic, medicine, seasoning, export",w:"All year (peak: February – April)"}},
+"Thymus algeriensis":{
+ fr:{n:"Thym d'Algérie (Zaatar)",d:"Thym aromatique endémique d'Afrique du Nord, tapisant de rose les montagnes calcaires au printemps. Son huile essentielle figure parmi les plus cotées du marché mondial, et le recul de ses stations sous l'effet de la cueillette et du pâturage en fait un candidat aux programmes de culture durable.",h:"Rocailles et plateaux semi-arides.",u:"Médecine, aromate, huile essentielle, condiment",w:"Avril – Juin"},
+ en:{n:"Algerian thyme (Zaatar)",d:"A thyme endemic to North Africa, carpeting limestone mountains in pink each spring. Its essential oil ranks among the most sought-after on the world market, and the retreat of its stands under harvesting and grazing makes it a candidate for sustainable cultivation programmes.",h:"Rocky slopes and semi-arid plateaus.",u:"Medicine, aromatic, essential oil, seasoning",w:"April – June"}},
+"Myrtus communis":{
+ fr:{n:"Myrte commun (As)",d:"Arbrisseau sempervirent aux feuilles luisantes, aux fleurs blanches élégantes et aux baies noir bleuté. Porteur dans la tradition tunisienne du symbole de joie et de noces, il pousse dans les vallons humides du Nord et ses peuplements sauvages ont nettement régressé ces dernières décennies.",h:"Maquis humides et berges des vallées du Nord.",u:"Aromate, médecine, ornement, symbolique",w:"Juin – Août"},
+ en:{n:"Common myrtle (As)",d:"An evergreen shrub with glossy leaves, elegant white flowers and bluish-black berries. Carrying the symbol of joy and weddings in Tunisian tradition, it grows in the humid northern ravines, though its wild stands have clearly declined in recent decades.",h:"Humid maquis and valley banks in the North.",u:"Aromatic, medicine, ornamental, symbolic",w:"June – August"}},
+"Arbutus unedo":{
+ fr:{n:"Arbousier (Kettad)",d:"L'arbre des chênaies humides aux fruits cramoisi savoureux, transformés en confitures et boissons populaires. Il fleurit en automne tout en portant les fruits de l'année précédente, ce qui lui donne un aspect unique dans les forêts de Kroumirie.",h:"Forêts humides et sub-humides de la Kroumirie et du Mogod.",u:"Alimentation (confiture), médecine, ornement",w:"Octobre – Décembre"},
+ en:{n:"Strawberry tree (Kettad)",d:"The tree of humid oak woods with tasty crimson fruits, made into jams and traditional drinks. It flowers in autumn while still carrying the previous year's fruit, giving it a unique look in the Kroumirie forests.",h:"Humid and sub-humid forests of Kroumirie and Mogod.",u:"Food (jam), medicine, ornamental",w:"October – December"}},
+"Erica arborea":{
+ fr:{n:"Bruyère arborescente",d:"Arbrisseau forestier aromatique aux fleurs blanches crème en clochettes s'ouvrant à la fin de l'hiver. Son bois burl, célèbre pour la fabrication des pipes de luxe, et son miel renommé accompagnent le chêne-liège comme signature des forêts les plus humides de Tunisie.",h:"Sols siliceux des forêts montagnardes humides.",u:"Bois de bruyère (pipes), miel, aromate",w:"Février – Avril"},
+ en:{n:"Tree heath",d:"An aromatic woodland shrub with creamy white bell flowers opening in late winter. Its famous burl wood for luxury pipe making and its renowned honey join cork oak as the signature of Tunisia's most humid forests.",h:"Siliceous soils of humid mountain forests.",u:"Heather wood (pipes), honey, aromatic",w:"February – April"}},
+"Cistus salviifolius":{
+ fr:{n:"Ciste à feuilles de sauge (Salyan)",d:"Arbrisseau méditerranéen aux feuilles rappelant la sauge et aux blanches fleurs éphémères qui s'ouvrent chaque matin. Ses racines mycorhiziennes aident les jeunes arbres à s'installer et il inaugure la reconstitution des forêts incendiées.",h:"Sols siliceux pauvres, maquis en régénération.",u:"Médecine (miel), régénération forestière, ornement",w:"Avril – Juin"},
+ en:{n:"Sage-leaved cistus (Salyan)",d:"A Mediterranean shrub with sage-like leaves and short-lived white flowers opening each morning. Its mycorrhizal roots help young trees establish, and it leads the recovery of burnt forests.",h:"Poor siliceous soils, regenerating maquis.",u:"Medicine (honey), forest regeneration, ornamental",w:"April – June"}},
+"Cyclamen africanum":{
+ fr:{n:"Cyclamen d'Afrique",d:"Le joyau endémique de l'extrême Nord africain, aux fleurs roses dressées au-dessus de feuilles cordées marbrées, fleurit à l'automne. Il ne pousse que dans les fissures des rochers calcaires de la Kroumirie et du Mogod ; menacé par la cueillette, il constitue une priorité nationale de conservation.",h:"Rochers calcaires et versants ombragés de l'extrême Nord-Ouest.",u:"Ornement (protection obligatoire), science",w:"Septembre – Novembre"},
+ en:{n:"African cyclamen",d:"The endemic jewel of Africa's far north, with pink flowers rising above marbled heart-shaped leaves, blooms in autumn. It grows only in the cracks of limestone rocks of Kroumirie and Mogod; threatened by gathering, it is a national conservation priority.",h:"Limestone rocks and shaded slopes of the far north-west.",u:"Ornamental (legally protected), science",w:"September – November"}},
+"Astragalus armatus":{
+ fr:{n:"Astragale armée (Kettad moudarrab)",d:"Coussinet épineux compact endémique d'Afrique du Nord, grimpant les hauts plateaux arides en épines argentées et gousses soyeuses. Véritable « pépinière » abritant les jeunes plantes sous son dôme, il protège le sol de l'érosion et illustre une adaptation spectaculaire à la sécheresse.",h:"Plateaux et versants arides du Centre et de l'Ouest.",u:"Science, protection des sols",w:"Avril – Juin"},
+ en:{n:"Armed milkvetch",d:"A compact spiny cushion endemic to North Africa, climbing the arid high plateaus with silver spines and silky pods. A true 'nursery' sheltering young plants beneath its dome, it shields the soil from erosion and showcases spectacular drought adaptation.",h:"Plateaus and arid slopes of the Centre and West.",u:"Science, soil protection",w:"April – June"}},
+"Nitraria retusa":{
+ fr:{n:"Nitrarie rétuse (Gharqad)",d:"Arbrisseau halophile des sebkhas et des lisières des palmeraies, dont les racines tolèrent les fortes salinités. Ses petits fruits rouges comestibles et riches en vitamines éclairent de vert les paysages salés les plus rudes.",h:"Sebkhas littorales et sols salés autour des oasis.",u:"Alimentation, médecine, fixation des sebkhas",w:"Avril – Juillet"},
+ en:{n:"Nitre bush (Gharqad)",d:"A salt-tolerant shrub of sebkhas and palm-grove margins whose roots endure extreme salinity. Its small edible vitamin-rich red fruits bring a touch of green to the harshest salt landscapes.",h:"Coastal salt flats and saline soils around oases.",u:"Food, medicine, salt-flat stabilization",w:"April – July"}},
+"Tamarix gallica":{
+ fr:{n:"Tamaris (Athl)",d:"L'arbre des oueds et des sebkhas aux rameaux menu feuillés et aux épis rosés, marqueur des côtes méridionales. Il triomphe à la fois du sel, du sable et de la sécheresse et sert depuis l'Antiquité à ombrager les cultures et fixer les berges des oueds et des oasis.",h:"Berges des oueds, sebkhas, lisières des oasis et lagunes côtières.",u:"Ombrage, fixation des berges, médecine, bois de feu",w:"Avril – Juin"},
+ en:{n:"French tamarisk (Athl)",d:"The tree of wadis and salt flats with fine feathery shoots and pink spikes, a hallmark of the southern coasts. It conquers salt, sand and drought alike and has long shaded crops and stabilized the banks of wadis and oases.",h:"Wadi banks, salt flats, oasis margins and coastal lagoons.",u:"Shade, bank stabilization, medicine, fuelwood",w:"April – June"}},
+"Nerium oleander":{
+ fr:{n:"Laurier-rose (Defla)",d:"L'arbuste des oueds et des lits torrentiels aux floraisons roses spectaculaires tout l'été, le plus célèbre ornement méditerranéen. Il tolère sel et sécheresse, mais sa toxicité générale en fait un danger pour le bétail en cas d'ingestion accidentelle.",h:"Lits d'oueds, canaux, berges des rivières et des lacs.",u:"Ornement, médecine (avec prudence), fixation des berges",w:"Mai – Septembre"},
+ en:{n:"Oleander (Defla)",d:"The shrub of wadis and torrent beds with spectacular pink blooms all summer, the Mediterranean's most famous ornamental. It tolerates salt and drought, yet its general toxicity makes it dangerous to livestock if accidentally browsed.",h:"Wadi beds, canals, river and lake banks.",u:"Ornamental, medicine (with care), bank stabilization",w:"May – September"}},
+"Pancratium maritimum":{
+ fr:{n:"Lis de mer (Zanbaq al-bahr)",d:"La fleur blanche parfumée des dunes littorales, s'ouvrant au cœur de l'été directement sur le sable. Son bulbe profond fixe les dunes, mais la pression touristique sur les plages a considérablement affaibli ses peuplements, faisant de la protection des dunes une priorité.",h:"Dunes sableuses côtières tout le long du littoral.",u:"Ornement, aromate, science",w:"Juin – Septembre"},
+ en:{n:"Sea daffodil (Zanbaq al-bahr)",d:"The fragrant white flower of coastal dunes, opening in midsummer straight from the sand. Its deep bulb fixes dunes, but tourism pressure on beaches has greatly weakened its stands, making dune protection a priority.",h:"Sandy coastal dunes along the entire shoreline.",u:"Ornamental, aromatic, science",w:"June – September"}},
+"Phoenix dactylifera":{
+ fr:{n:"Palmier dattier (Nakhla)",d:"La dame des oasis tunisiennes, avec plus de 250 variétés locales dont la célèbre « Deglet Nour ». Avec ses cultures sous-jacentes, il forme un système oasien à trois étages qui protège fruits et légumes de la chaleur — un héritage agricole menacé par les maladies fongiques et l'avancée du désert.",h:"Oasis sahariennes et palmeraies du Sud sur eaux souterraines.",u:"Alimentation (dattes), économie d'exportation, système oasien",w:"Avril – Mai (pollinisation manuelle)"},
+ en:{n:"Date palm (Nakhla)",d:"The lady of Tunisian oases, with over 250 local cultivars including the world-famous 'Deglet Nour'. Together with understorey crops it forms a three-storey oasis system shielding fruits and vegetables from heat — an agricultural heritage threatened by fungal diseases and the desert's advance.",h:"Saharan oases and southern palm groves over groundwater.",u:"Food (dates), export economy, integrated oasis system",w:"April – May (hand pollination)"}},
+"Calligonum comosum":{
+ fr:{n:"Calligone (Abal)",d:"Arbrisseau sableux du désert aux rameaux vert luisant et aux fleurs blanches parfumées qui s'épanouissent la nuit, parmi les meilleurs fixateurs de dunes mobiles. Ses racines s'étendent sur des mètres dans le sable à la recherche d'humidité ; plante de protection essentielle contre l'envahissement des routes et des oasis.",h:"Dunes mobiles et terrains sableux sahariens.",u:"Fixation des dunes, médecine, bois de feu traditionnel",w:"Avril – Mai"},
+ en:{n:"Desert calligonum (Abal)",d:"A sandy desert shrub with glossy green shoots and fragrant white flowers opening at night, among the finest stabilizers of moving dunes. Its roots stretch metres through the sand in search of moisture; a key protective plant against the encroachment of roads and oases.",h:"Moving dunes and Saharan sandy ground.",u:"Dune fixation, medicine, traditional fuelwood",w:"April – May"}},
+"Capparis spinosa":{
+ fr:{n:"Câprier épineux (Kabar)",d:"Il se répand sur les murs et les rochers en fleurs blanches grêles aux longues étamines ; ses boutons, les câpres, sont confits au vinaigre dans le monde entier. Accroché au mur le plus sec grâce à ses racines profondes, c'est une plante des steppes côtières à forte valeur économique directe.",h:"Vieux murs, rocailles et terrains vacants.",u:"Alimentation (câpres), médecine, ressource économique",w:"Mai – Août"},
+ en:{n:"Caper bush (Kabar)",d:"It sprawls over walls and rocks in slender white flowers with long stamens; its buds, the capers, are pickled in vinegar worldwide. Clinging to the driest wall with deep roots, it is a coastal-steppe plant of direct economic value.",h:"Old walls, rocky slopes and wasteland.",u:"Food (capers), medicine, economic resource",w:"May – August"}}
+};
+/* ═══════════ TRADUCTIONS AIRES PROTÉGÉES (FR / EN) ═══════════ */
+const ARX={
+ichkeul:{fr:{t:"Réserve du patrimoine mondial (UNESCO)",d:"La plus grande lac douce d'Afrique du Nord et site du patrimoine mondial de l'UNESCO, elle accueille des centaines de milliers d'oiseaux migrateurs et se distingue par ses chênaies et ses marais saisonniers."},en:{n:"Ichkeul National Park",t:"World Heritage site (UNESCO)",d:"North Africa's great freshwater lake and a UNESCO World Heritage site, it welcomes hundreds of thousands of migratory birds and is famed for its oak woods and seasonal wetlands."}},
+chambi:{fr:{t:"Parc national",d:"Il abrite le plus haut sommet de Tunisie (jebel Chambi, 1 544 m) avec ses forêts de pin d'Alep et de thuya de Berbérie ; c'est un refuge pour la gazelle de montagne et la flore des monts du Centre."},en:{n:"Chambi National Park",t:"National park",d:"Home to Tunisia's highest peak (Jebel Chambi, 1,544 m) with Aleppo pine and Berber thuja forests; a refuge for the mountain gazelle and the flora of the Dorsal."}},
+feija:{fr:{t:"Parc national",d:"Au cœur de la Kroumirie humide, entre chênes-lièges et chênes zéens, c'est l'un des derniers refuges du macaque magot dans le Nord de la Tunisie."},en:{n:"El Feija National Park",t:"National park",d:"In the heart of humid Kroumirie, between cork oaks and zeen oaks, it is one of the last strongholds of the Barbary macaque in northern Tunisia."}},
+boukornine:{fr:{t:"Parc national",d:"Deux poumons verts aux portes de la capitale, avec ses forêts de thuya de Berbérie, de myrte et d'oléastre sauvage et ses sentiers d'éducation à l'environnement."},en:{n:"Boukornine National Park",t:"National park",d:"Two green lungs at the gates of the capital, with Berber thuja, myrtle and wild olive woods and environmental education trails."}},
+"zaghouan-p":{fr:{t:"Parc national",d:"Montagne calcaire célèbre pour ses forêts de pin d'Alep et de thuya de Berbérie, avec la source de Zaghouan qui alimentait jadis l'aqueduc romain de Carthage."},en:{n:"Jebel Zaghouan National Park",t:"National park",d:"A limestone mountain famed for Aleppo pine and Berber thuja woods, with the Zaghouan spring that once fed Carthage's Roman aqueduct."}},
+"bou-hedma":{fr:{t:"Parc national",d:"Une savane pré-désertique unique mêlant acacias réintroduits, autruches et gazelles ; un modèle de restauration des écosystèmes semi-arides."},en:{n:"Bou-Hedma National Park",t:"National park",d:"A unique pre-desertic savanna mixing reintroduced acacias, ostriches and gazelles; a model of semi-arid ecosystem restoration."}},
+chitana:{fr:{t:"Parc national",d:"Un prolongement côtier et montagneux sur la Méditerranée, mêlant chênaies de chêne-liège, golfe rocheux et habitats littoraux préservés."},en:{n:"Jebel Chitana–Cap Negro National Park",t:"National park",d:"A coastal and mountain stretch on the Mediterranean, combining cork oak woods, a rocky gulf and pristine coastal habitats."}},
+"sidi-toui":{fr:{t:"Parc national",d:"Un modèle de l'écosystème désertique du Sud-Est, avec ses steppes épineuses et ses programmes de réintroduction de la gazelle et de l'addax."},en:{n:"Sidi Toui National Park",t:"National park",d:"A model of the South-Eastern desert ecosystem, with its spiny steppes and reintroduction programmes for gazelle and addax."}},
+dghoumes:{fr:{t:"Parc national",d:"Zone de transition entre steppe et désert près de Chott el-Jerid, avec plantes halophiles, palmiers sauvages et programmes de réintroduction de l'autruche."},en:{n:"Dghoumes National Park",t:"National park",d:"A transition zone between steppe and desert near Chott el-Jerid, with salt-loving plants, wild palms and ostrich reintroduction programmes."}},
+"oued-dekouk":{fr:{t:"Parc national",d:"Réserve au cœur des monts de Tataouine, avec des oueds saisonniers bordés de tamaris et d'acacias, refuge de la vie saharienne."},en:{n:"Oued Dekouk National Park",t:"National park",d:"A reserve in the heart of the Tataouine mountains, with seasonal wadis lined by tamarisks and acacias — a sanctuary of Saharan life."}},
+zembra:{fr:{t:"Réserve naturelle (UNESCO)",d:"Deux îles protégées au large du cap Bon, réserve de biosphère avec des forêts rares sur falaises et des fonds marins riches."},en:{n:"Zembra and Zembretta Nature Reserve",t:"Nature reserve (UNESCO)",d:"Two protected islands off Cap Bon, a biosphere reserve with rare cliff forests and rich seabeds."}}
+};
+</script>
+
+<script>
+/* ═══════════ DONNÉES RÉELLES — flore de Tunisie ═══════════ */
+const IMG={
+"oleander":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/734653557529.jpg",
+"alfa":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b8b3fb345d78.jpg",
+"caper":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/116386cb0d45.jpg",
+"armoise":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/1267867d8a5f.jpg",
+"tamarix":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/f2362ad39551.jpg",
+"hero":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/beeff1c9180c.jpg",
+"carob":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/588aa372542e.jpg",
+"myrtle":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/2c3cf0badf84.jpg",
+"erica":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/9307affc0461.jpg",
+"aleppo-pine":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/f353b8450d55.jpg",
+"palm":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/e89b83d4642c.jpg",
+"thyme":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/750f74ff6689.jpg",
+"arbutus":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/346ba59831ab.jpg",
+"araar":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/a484c9db2d4f.jpg",
+"sea-daffodil":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b124b333ddc2.jpg",
+"cyclamen":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/59d8ffc7fae7.jpeg",
+"olive":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/8752ee8fb50a.jpg",
+"rosemary":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b1527035185d.jpg",
+"retam":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/aa07a436d4c2.jpg",
+"pistachio":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/d25cbc2a1e3f.jpg",
+"calligonum":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/d46942e6aa86.jpg",
+"hero2":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/26a9f3ff6a15.jpg",
+"acacia":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/5cdfc1938752.jpeg",
+"jujube":"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/2c7c4199eea0.jpg"
+};
+/* [id, nameAr, nameFr, lat, lng, zone N/C/S] */
+const GOVS=[
+["tunis","تونس","Tunis",36.80,10.18,"الشمال"],["ariana","أريانة","Ariana",36.86,10.19,"الشمال"],
+["ben-arous","بن عروس","Ben Arous",36.75,10.23,"الشمال"],["bizerte","بنزرت","Bizerte",37.27,9.87,"الشمال"],
+["beja","باجة","Béja",36.72,9.18,"الشمال"],["jendouba","جندوبة","Jendouba",36.50,8.78,"الشمال"],
+["kef","الكاف","Le Kef",36.17,8.70,"الشمال"],["siliana","سليانة","Siliana",36.08,9.37,"الشمال"],
+["zaghouan","زغوان","Zaghouan",36.40,10.14,"الشمال"],["nabeul","نابل","Nabeul",36.45,10.73,"الشمال"],
+["manouba","منوبة","Manouba",36.81,10.10,"الشمال"],["sousse","سوسة","Sousse",35.83,10.64,"الوسط"],
+["monastir","المنستير","Monastir",35.78,10.80,"الوسط"],["mahdia","المهدية","Mahdia",35.50,11.06,"الوسط"],
+["sfax","صفاقس","Sfax",34.74,10.76,"الوسط"],["kairouan","القيروان","Kairouan",35.68,10.10,"الوسط"],
+["kasserine","القصرين","Kasserine",35.17,8.83,"الوسط"],["sidi-bouzid","سيدي بوزيد","Sidi Bouzid",35.04,9.48,"الوسط"],
+["gabes","قابس","Gabès",33.88,10.10,"الجنوب"],["medenine","مدنين","Médenine",33.36,10.50,"الجنوب"],
+["tataouine","تطاوين","Tataouine",32.93,10.45,"الجنوب"],["gafsa","قفصة","Gafsa",34.43,8.62,"الجنوب"],
+["tozeur","توزر","Tozeur",33.92,8.13,"الجنوب"],["kebili","قبلي","Kébili",33.70,8.97,"الجنوب"]
+];
+/* Aires protégées */
+const AREAS=[
+{id:"ichkeul",n:"حديقة إشكل الوطنية",nf:"Parc national de l'Ichkeul",t:"محمية عالمية (اليونسكو)",g:"بنزرت",a:12600,lat:37.16,lng:9.66,d:"أكبر بحيرة عذبة في شمال أفريقيا وموقع تراث عالمي لليونسكو، تستقبل مئات الآلاف من الطيور المهاجرة، وتتميز بغابات البلوط والأراضي الرطبة الموسمية."},
+{id:"chambi",n:"حديقة الشعنبي الوطنية",nf:"Parc national du Chambi",t:"حديقة وطنية",g:"القصرين",a:6723,lat:35.16,lng:8.90,d:"تحتضن أعلى قمة في تونس (جبل الشعنبي 1544 م)، وتشمل غابات الصنوبر الحلبي والعرار، وتُعد ملجأ لغزال الجبل ونباتات الجبال الوسطى."},
+{id:"feija",n:"حديقة الفايجة الوطنية",nf:"Parc national d'El Feija",t:"حديقة وطنية",g:"جندوبة",a:2632,lat:36.45,lng:8.44,d:"قلب غابات كروميرية الرطبة بأشجار البلوط الفليني والزرّين، وأحد آخر معاقل القرد المكّوك (المغوط) في شمال تونس."},
+{id:"boukornine",n:"حديقة بوكرنين الوطنية",nf:"Parc national de Boukornine",t:"حديقة وطنية",g:"بن عروس",a:1939,lat:36.70,lng:10.42,d:"رئتي أخضرتين على أعتاب العاصمة، تضم غابات العرار والآس والزيتون البري ومسارات بيئية لتوعية الزوار."},
+{id:"zaghouan-p",n:"حديقة جبل زغوان الوطنية",nf:"Parc national de Jebel Zaghouan",t:"حديقة وطنية",g:"زغوان",a:2081,lat:36.38,lng:10.13,d:"جبل كلسي شهر بغابات الصنوبر الحلبي والعرعار وبمصدر ماء تينة الذي كان يغذي قنطرة زغوان الرومانية."},
+{id:"bou-hedma",n:"حديقة بوحدمة الوطنية",nf:"Parc national de Bou-Hedma",t:"حديقة وطنية",g:"سيدي بوزيد",a:16488,lat:34.72,lng:9.17,d:"سافانا ما قبل صحراوية فريدة تجمع أشجار السيّاح المُعاد توطينها مع النعام والغزال، وتُعد نموذجاً لترميم النظم البيئية شبه الجافة."},
+{id:"chitana",n:"حديقة جبل شيطانة ورأس أسود",nf:"Parc national de Jebel Chitana-Cap Negro",t:"حديقة وطنية",g:"باجة",a:12126,lat:36.98,lng:9.30,d:"امتداد ساحلي وجبلي على البحر الأبيض، يجمع بين غابات البلوط الفليني والخليج الصخري والموائل الساحلية العذراء."},
+{id:"sidi-toui",n:"حديقة سيدي الطوي الوطنية",nf:"Parc national de Sidi Toui",t:"حديقة وطنية",g:"مدنين",a:6315,lat:31.03,lng:10.46,d:"نموذج للنظام البيئي الصحراوي في الجنوب الشرقي، بمساحاته السهبية الشائكة وبرامج إعادة توطين الغزال الصحراوي والمها."},
+{id:"dghoumes",n:"حديقة دخامس الوطنية",nf:"Parc national de Dghoumes",t:"حديقة وطنية",g:"توزر",a:8500,lat:33.53,lng:8.35,d:"منطقة انتقالية بين السهوب والصحراء بالقرب من حوض شط الجريد، تضم نباتات ملحية ونخيل بري وبرامج لإعادة النعامة الأفريقية."},
+{id:"oued-dekouk",n:"حديقة وادي الدكوك الوطنية",nf:"Parc national d'Oued Dekouk",t:"حديقة وطنية",g:"تطاوين",a:7073,lat:32.42,lng:10.25,d:"محمية في قلب جبال تطاوين، تضم مجاري مائية موسمية بأشجار الأثل والسيّاح وتوفر ملاذاً للحياة الصحراوية."},
+{id:"zembra",n:"محمية زمبرة وزمبريتا",nf:"Réserve naturelle de Zembra et Zembretta",t:"محمية طبيعية (اليونسكو)",g:"نابل",a:391,lat:37.12,lng:11.08,d:"جزيرتان محميتان قبالة الرأس البوني، تشكلان محمية محيط حيوي بغابات نادرة على الجروف وعشوائيات بحرية غنية."}
+];
+/* Échelle UICN */
+const IUCN={
+LC:{ar:"أقل اهتماماً",fr:"Préoccupation mineure",c:"#4d7c0f"},
+NT:{ar:"قريب من الخطر",fr:"Quasi menacé",c:"#ca8a04"},
+VU:{ar:"قابل للتأثر",fr:"Vulnérable",c:"#ea580c"},
+EN:{ar:"مهدد بالانقراض",fr:"En danger",c:"#dc2626"},
+CR:{ar:"مهدد حديثاً بالانقراض",fr:"En danger critique",c:"#7f1d1d"}
+};
+/* Zones écologiques [label, couleur, description] */
+const ZONES={
+"الغابات الرطبة":{c:"#166534",d:"كروميرية ومغود: البلوط الفليني والزرّين والخلنج — قلب التنوع الحيوي في تونس."},
+"الجبال والأدغال":{c:"#3f6212",d:"الدرسة الأطلسية وسفوحها: الصنوبر الحلبي، العرّار والزيتون البري."},
+"السهوب والمراعي الجافة":{c:"#a16207",d:"ديّان الحلفاء والشيح والزعتر البري — مجال الرعي التقليدي بامتياز."},
+"الواحات والصحراء":{c:"#b45309",d:"نخيل الدقلة نور، البطم الأطلسي وأشجار تثبيت الكثبان."},
+"السواحل والأراضي الرطبة":{c:"#0f766e",d:"كثبان زنبق البحر، سباخ الغرقد وضفاف الدفلة والأثل."}
+};
+const ZONE_ORDER=["الغابات الرطبة","الجبال والأدغال","السهوب والمراعي الجافة","الواحات والصحراء","السواحل والأراضي الرطبة"];
+/* Observations initiales [sci, govId, obsAr, obsFr, obsEn, jours, notesAr, notesFr, notesEn] */
+const OBS=[
+["Cyclamen africanum","jendouba","أمين بن صالح","Amine Ben Salah","Amine Ben Salah",12,"عزبة صغيرة على الصخور الجيرية في أعالي غابة الفايجة، أزهار وردية حديثة التفتح.","Petite colonie sur les rochers calcaires des hauteurs de la forêt d'El Feija, fleurs roses d'ouverture récente.","Small colony on the limestone rocks high up in El Feija forest, pink flowers freshly opened."],
+["Quercus suber","jendouba","فريق الرصد البيئي","Équipe de suivi environnemental","Environmental Monitoring Team",30,"تجدد طبيعي ممتاز بعد الحرائق، شتلات بلوط فليني على مساحة نحو هكتار.","Excellente régénération naturelle après les incendies : jeunes chênes-lièges sur une superficie d'environ un hectare.","Excellent natural regeneration after the fires, with cork oak saplings across roughly one hectare."],
+["Phoenix dactylifera","tozeur","وليد الجلولي","Walid Jallouli","Walid Jallouli",45,"إحصاء جزئي للمعلق بالمحمدية: 420 نخلة، 3 عيون تُظهر أعراض فوساريوم مبكرة.","Comptage partiel de la palmeraie suspendue de la Mohamedia : 420 palmiers, dont 3 pieds présentant des symptômes précoces de fusariose.","Partial count of the Mohamedia suspended palm grove: 420 palms, 3 of them showing early symptoms of fusarium wilt."],
+["Nitraria retusa","kebili","مريم الطرابلسي","Mariem Trabelsi","Mariem Trabelsi",60,"غمدات الغرقد على سباخ الشابي في امتداد غير معتاد، مؤشر على تدهور الملوحة.","Peuplements de nitraria sur les sebkhas de Chabbi, en extension inhabituelle, signe d'une dégradation de la salinité.","Nitraria stands on the Chabbi sebkhas spreading to an unusual extent, a sign of deteriorating salinity."],
+["Pancratium maritimum","nabeul","سلمى بوعزيز","Salma Bouazizi","Salma Bouazizi",75,"زنبق البحر يزهر على كثبان حسيني، لكن مد السياحة قلّص الشريط إلى عشرات الأمتار.","Le lys de mer fleurit sur les dunes de Husseini, mais l'avancée touristique a réduit la bande à quelques dizaines de mètres.","Sea daffodils blooming on the Husseini dunes, though the advance of tourism has narrowed the strip to a few dozen metres."],
+["Artemisia herba-alba","kasserine","كريم المبروكي","Karim Mabrouki","Karim Mabrouki",90,"جمع تجاري مبكر للشيح في جبل الورغ، حاجة لتنظيم الحصاد مع المستثمرين.","Cueillette commerciale précoce d'armoise blanche au djebel Ouergh ; un encadrement de la récolte avec les exploitants s'impose.","Early commercial harvest of white wormwood on Jebel Ouergh; harvest rules need to be agreed with the operators."],
+["Acacia tortilis subsp. raddiana","sidi-bouzid","نادية الشابي","Nadia Chebbi","Nadia Chebbi",100,"إكثار طبيعي لأشجار السياح في وادي بوحدمة بعد موسم أمطار جيد.","Régénération naturelle des acacias gommiers dans l'oued Bou Hedma après une bonne saison des pluies.","Natural regeneration of umbrella thorn acacias in Oued Bou Hedma after a good rainy season."],
+["Retama raetam","medenine","حمزة القصاب","Hamza Kassab","Hamza Kassab",120,"إزهار ممتد للرتم في وادي الجريف، النحل المحلي نشط جداً في الفترة الصباحية.","Floraison étendue du retam dans l'oued Jerif ; les abeilles locales sont très actives le matin.","Extended flowering of white broom in Oued Jerif; local honeybees are very active in the morning."],
+["Tetraclinis articulata","zaghouan","يوسف الحاج علي","Youssef Hadj Ali","Youssef Hadj Ali",130,"قنصلة عرار على السفح الجنوبي، حاجز قطع عشوائي مقترح على الطريق الثانوية.","Rejets de thuya de l'Atlas sur le versant sud ; proposition d'une barrière contre les coupes anarchiques le long de la route secondaire.","Thuya saplings on the southern slope; a barrier against random felling is proposed along the secondary road."],
+["Salvia rosmarinus","kasserine","رانية الفقي","Rania El Feki","Rania El Feki",140,"عزبات أزير كثيفة على جبل الشعانبي، أزهار زرقاء باكرة مع أمطار ديسمبر.","Peuplements denses de romarin sur le djebel Chaambi, floraison bleue précoce favorisée par les pluies de décembre.","Dense rosemary stands on Jebel Chaambi, with early blue flowering after the December rains."],
+["Stipa tenacissima","sidi-bouzid","مجموعة عمل الرامل","Groupe de travail Erramel","Erramel Working Group",160,"حصاد ديس سنوي تقليدي منظم، أثر إيجابي على استقرار التربة ملاحظ.","Récolte annuelle traditionnelle et organisée d'alfa ; un effet positif sur la stabilité du sol est observé.","Traditional, well-organised annual halfa harvest; a positive effect on soil stability is observed."],
+["Pistacia atlantica","gafsa","منير العبيدي","Mounir Oubeidi","Mounir Oubeidi",180,"بطة أطلسي عتيقة في قاع وادي بني ورقيلة، تُقدر بأكثر من 300 سنة، سقوط أفرع مرئي.","Vénérable pistachier de l'Atlas au fond de l'oued Beni Ouarkila, âgé de plus de 300 ans ; chute de branches visible.","Ancient Atlas pistachio tree at the bottom of Oued Beni Ouarkila, estimated at over 300 years old; visible branch fall."],
+["Nerium oleander","jendouba","أمين بن صالح","Amine Ben Salah","Amine Ben Salah",200,"دفلى مزدهرة على ضفاف وادي المجرادة، صحة النبات جيدة رغم انخفاض المياه.","Lauriers-roses florissants sur les berges de la Medjerda ; bonne santé végétale malgré la baisse des eaux.","Flourishing oleanders on the banks of the Medjerda; plants in good health despite falling water levels."],
+["Myrtus communis","bizerte","هاجر المسعودي","Hager Messaoudi","Hager Messaoudi",220,"جمع آسي محدود في غابة الحياد، تحتاج عزبة مظللة أكثر وحماية من الرعي.","Cueillette manuelle limitée dans la forêt d'El Hyad ; les peuplements demandent plus d'ombrage et une protection contre le pâturage.","Limited hand-picking in El Hyad forest; the stands need more shade and protection from grazing."],
+["Capparis spinosa","nabeul","عصام بن يحيى","Essam Ben Yahia","Essam Ben Yahia",240,"كبار متسلق على أعراش قدماء في الحمامات، حصاد تجاري منظم سنوي.","Câpres grimpantes sur de vieilles souches à Hammamet ; récolte commerciale organisée chaque année.","Climbing capers on old vines in Hammamet; the commercial harvest is organised every year."],
+["Pinus halepensis","sidi-bouzid","محمد الرحيوي","Mohamed Rahoui","Mohamed Rahoui",260,"قنصلة صنوبرية حديثة بالقرب من الحزام الأخضر، توزيع متفاوت مع الأفق.","Régénération récente de pin d'Alep à proximité de la ceinture verte, répartition variable selon l'étage de végétation.","Recent Aleppo pine regeneration near the green belt, with distribution varying according to elevation."],
+["Thymus algeriensis","gafsa","سفيان الدريدي","Soufien Dridi","Soufien Dridi",280,"عزبة زعتر على الجانب الجنوبي الجبلي، مقاومة جيدة لفترات الجفاف الممتدة.","Peuplement de thym sur le flanc sud de la montagne, bonne résistance aux longues périodes de sécheresse.","Thyme stand on the southern mountain side, with good resistance to prolonged drought spells."],
+["Calligonum comosum","kebili","ليلى الهلالي","Leila Haili","Leila Haili",300,"شجيرات أبل تُستخدم في برنامج محلي لتثبيت الكثبان قرب الجديد.","Arbustes de calligonum utilisés dans un programme local de fixation des dunes près d'El Djedid.","Calligonum shrubs used in a local dune-stabilisation programme near El Djedid."],
+["Ziziphus lotus","sfax","داليا القرقوري","Dalia Karkouri","Dalia Karkouri",320,"أحزمة سدرة في سهول اللوازين، تقاوم الرمال وتشكل سياجاً طبيعياً فعّالاً.","Ceintures de jujubier sauvage dans les plaines d'El Louazine : elles retiennent le sable et forment une clôture naturelle efficace.","Wild jujube belts on the Louazine plains: they hold back the sand and form an effective natural fence."],
+["Erica arborea","beja","فريق الرصد البيئي","Équipe de suivi environnemental","Environmental Monitoring Team",340,"خلنج شجري متسلق على منحدرات المسلتة، عسل الخلنج من إنتاج الموسم عالي الجودة.","Bruyère arborescente sur les pentes de la Mselta ; le miel de bruyère de la saison est de grande qualité.","Tree heath on the Mselta slopes; this season's heather honey is of outstanding quality."]
+];
+/* Espèces : s=scientifique a=arabe f=français fa=famille ar fl=famille latin e=emoji img=clé photo
+   d=description h=habitat b=bioclimat z=zone c=conservation en=endémique u=usages w=floraison r=régions */
+const SP=[
+{s:"Quercus suber",a:"البلوط الفليني",f:"Chêne-liège",fa:"الزانية",fl:"Fagaceae",e:"🌳",img:"cork-oak",
+ d:"شجرة معمرة دائمة الخضرة يصل ارتفاعها إلى 20 م، يكسوها لحاء فليني سميك يُستخرج منه الفلين التجاري. تشكّل مع بَيْضَتها الغابات الأكثر رطوبةً في تونس على امتداد كروميرية ومغود، وتمنح ملاذات أساسية لتنوع بيولوجي لا يتكرر في البلاد.",
+ h:"الجبال الشمالية الرطبة على الترب السيليسية العميقة، بين 300 و1000 م.",b:"رطب وشبه رطب",z:"الغابات الرطبة",c:"LC",en:0,
+ u:"الفلين، تثبيت التربة، وقود، مراعي بلوطية",w:"أفريل – ماي",r:["jendouba","beja","bizerte","kef"]},
+{s:"Quercus canariensis",a:"البلوط الزرّين",f:"Chêne zéen",fa:"الزانية",fl:"Fagaceae",e:"🌳",img:null,
+ d:"شجرة ظلّية كبرى بوريقات كبيرة مسنّنة تتحول إلى ذهبيّة في الخريف، تنمو في وديان كروميرية الرطبة. تلعب دوراً محورياً في حفظ رطوبة التربة وتغذي شبكة غذائية واسعة من الحشرات والطيور، لكنّ مساحاتها تراجعت كثيراً أمام اجتياح الفلين والزرع.",
+ h:"الوديان العميقة والمنحدرات الرطبة في كروميرية ومغود.",b:"رطب",z:"الغابات الرطبة",c:"NT",en:0,
+ u:"الظل والغطاء الحرجي، أخشاب محلية",w:"أفريل – جوان",r:["jendouba","beja","bizerte"]},
+{s:"Pinus halepensis",a:"الصنوبر الحلبي",f:"Pin d'Alep",fa:"الصنوبرية",fl:"Pinaceae",e:"🌲",img:"aleppo-pine",
+ d:"الصنوبر الأكثر انتشاراً في تونس، يغطي سفوح الدرسة الأطلسية وجبال الوسط والشمال. شجرة مقاومة للجفاف والترب الرخوة، تُعتمد في أعظم برامج التشجير التونسية، وتمنح صمغاً عطرياً وجوز الصنوبر المفروح بالمخاريط اللامعة.",
+ h:"السفوح الجبلية الكلسية من الشمال إلى الجنوب الشرقي، حتى 1400 م.",b:"شبه رطب إلى شبه جاف",z:"الجبال والأدغال",c:"LC",en:0,
+ u:"تشجير، صمغ، خشب، عسل الصنوبر",w:"أفريل – ماي",r:["zaghouan","kasserine","siliana","kef","beja","nabeul","kairouan","sidi-bouzid","ben-arous"]},
+{s:"Tetraclinis articulata",a:"العرّار",f:"Thuya de Berbérie (Araar)",fa:"السروية",fl:"Cupressaceae",e:"🌲",img:"araar",
+ d:"صروح سروية نادرة في حوض المتوسط، ذات أوراق مُقسّمة عقدية وخشب ذهبي عطري معروف في الصناعة التقليدية. تتحمل المناطق شبه الجافة القاسية، وتشكّل غابات هشّة مهددة بالحرائق وقطع الماشية.",
+ h:"السفوح شبه الجافة والجبال الكلسية المنخفضة.",b:"شبه جاف",z:"الجبال والأدغال",c:"VU",en:0,
+ u:"أخشاب مشغولة عطرية، طبية، تثبيت السفوح",w:"فبراير – أفريل",r:["kasserine","siliana","zaghouan","kairouan","nabeul","gabes"]},
+{s:"Juniperus phoenicea",a:"العرعار الأحمر",f:"Genévrier rouge",fa:"السروية",fl:"Cupressaceae",e:"🌲",img:null,
+ d:"شجيرة أو شجرة سروية داكنة بثمار كروية حمراء تنضج في الخريف، تعتلي الكثبان الرملية الثابتة والجبال الساحلية. تنجح في أقسى المواقع الصخرية وتثبّت الرمال، وتُعرف قديماً بقيمتها الطبية في أمراض الجهاز الهضمي.",
+ h:"الكثبان الثابتة، الجبال الساحلية، المناطق الجافة الداخلية.",b:"شبه جاف إلى جاف",z:"الجبال والأدغال",c:"NT",en:0,
+ u:"طبية، عطرية، تثبيت الكثبان",w:"أفريل – جوان",r:["nabeul","zaghouan","kasserine","gabes","medenine","tataouine"]},
+{s:"Olea europaea var. oleaster",a:"العُمّان (الزيتون البري)",f:"Olivier sauvage (Oléastre)",fa:"الزيتونية",fl:"Oleaceae",e:"🫒",img:"olive",
+ d:"الجدّ البري لشجرة الزيتون المزروعة، ينمو شجرةً شوكية في الأدغال الخفيفة وسفوح الدرسة. أوراقه خضراء باهتة من تحت وثماره صغيرة مرّة، وهو مخزّن جيني ثمين لتحسين أصناف الزيتون التونسية ومقاومة الجفاف والأمراض.",
+ h:"الأدغال الخفيفة، الطرق، الأراضي المهملة في الشمال والوسط.",b:"شبه رطب إلى شبه جاف",z:"الجبال والأدغال",c:"LC",en:0,
+ u:"أصل لتطعيم الزيتون، مقاومة الجفاف، وقود",w:"ماي – جوان",r:["bizerte","beja","zaghouan","nabeul","kairouan","kasserine","sfax","gabes","jendouba"]},
+{s:"Ceratonia siliqua",a:"الخرّوب",f:"Caroubier",fa:"البقولية",fl:"Fabaceae",e:"🌰",img:"carob",
+ d:"شجرة معمرة حلوة الظل بقرون سودائية غنية بالسكر، من أقدم الأشجار المفيدة في المتوسط. تنمو في الأدغال الشمالية وتُقدّر بوصفها غذاءً للماشية والبشر في سنوات القحط، وتثبّت النيتروجين فتخصب تربها الفقيرة.",
+ h:"الأدغال والمراعي الجبلية في الشمال والوسط.",b:"شبه رطب إلى شبه جاف",z:"الغابات الرطبة",c:"LC",en:0,
+ u:"غذاء (خروب)، صناعة، أعلاف",w:"أوت – أكتوبر",r:["jendouba","beja","bizerte","nabeul","zaghouan","kasserine"]},
+{s:"Pistacia atlantica",a:"البطم الأطلسي",f:"Pistachier de l'Atlas",fa:"البطمية",fl:"Anacardiaceae",e:"🌳",img:"pistachio",
+ d:"عملاق الأشجار الجنوبية، يتسلل جذعه العميق إلى المياه العميقة ويصل عمره إلى قرون. ثمراته «الحلب» المستخدمة في الحلويات التقليدية، وهو شاهد حيّ على أنهار الواحات القديمة وقد صُنّف مهدداً بسبب تراجع جدارته الطبيعية.",
+ h:"قيعان الوديان، السباخ الجافة، حدود الواحات في الجنوب.",b:"جاف إلى صحراوي",z:"الواحات والصحراء",c:"VU",en:0,
+ u:"غذاء (الحلب)، طبي، عطف الحوامل",w:"أفريل – ماي",r:["gabes","medenine","tataouine","gafsa","kebili","tozeur"]},
+{s:"Ziziphus lotus",a:"السدرة",f:"Jujubier sauvage",fa:"السدرية",fl:"Rhamnaceae",e:"🌳",img:"jujube",
+ d:"شجيرة شوكية متشعبة تُشكّل أحزمة طبيعية تُثبّت الرمال وتحمي المراعي من الانجراف. ذُكرت في التراث العربي بأسماء عديدة، وثمارها الصغيرة «النبق» صالحة للأكل، وجذورها العميقة تجعلها مقاومةً مذهلة للقحط.",
+ h:"السهوب الجافة، الرمال الساحلية، الأراضي البور.",b:"شبه جاف إلى جاف",z:"السهوب والمراعي الجافة",c:"LC",en:0,
+ u:"غذاء، تثبيت الرمال، سياج طبيعي",w:"ماي – جويلية",r:["sfax","mahdia","gabes","medenine","kairouan","sousse"]},
+{s:"Acacia tortilis subsp. raddiana",a:"السيّاح",f:"Acacia gommier (raddiana)",fa:"البقولية",fl:"Fabaceae",e:"🌳",img:"acacia",
+ d:"شجرة الظلّ الأيقونية للسافانا الصحراوية بتاجها الممزّق على شكل مِظلّة، آخر الأشجار المقاومة للصحراء الجافة. غاباتها الجنوبية شريان حياة للرعاة والنحل والغزال، وقد أُعيد توطينها بنجاح في حديقة بوحدمة.",
+ h:"السهوب الصحراوية، قيعان الوديان في الجنوب.",b:"جاف إلى صحراوي",z:"الواحات والصحراء",c:"VU",en:0,
+ u:"علف، صمغ عربي، ظل، وقود",w:"أفريل – جوان",r:["medenine","tataouine","kebili","gabes","tozeur"]},
+{s:"Retama raetam",a:"الرَّتم",f:"Retam (Genêt de retam)",fa:"البقولية",fl:"Fabaceae",e:"🌼",img:"retam",
+ d:"شجيرة صحراوية أنيقة بأغصان خضراء رفيعة وأزهار بيضاء عطرة تُغطّي الوديان الجنوبية في الربيع. تكيف ببراعة مع العطش عبر أوراق متناهية الصغر، وتمنح الرحيق أساساً لتربية النحل الصحراوي التقليدي.",
+ h:"الكثبان الثابتة، الوديان الصحراوية، الأراضي الرملية.",b:"جاف إلى صحراوي",z:"الواحات والصحراء",c:"LC",en:0,
+ u:"طبي، علف، تثبيت الرمال، نحل",w:"فبراير – أفريل",r:["medenine","tataouine","kebili","gafsa","gabes","sfax","tozeur"]},
+{s:"Stipa tenacissima",a:"الدِّيس (اللفّا)",f:"Alfa",fa:"النجيلية",fl:"Poaceae",e:"🌾",img:"alfa",
+ d:"عشبة سهبية متراصة بأوراق رقيقة طويلة تشكّل «الديّان» الشاسعة على هضاب الوسط والغرب. اقتصادياً تاريخية بوصفها مادة الحبال والورق، وبيئياً حصينة ضد انجراف التربة في المناطق شبه الجافة المعرضة للتصحر.",
+ h:"الهضاب والسفوح شبه الجافة على الترب الكلسية.",b:"شبه جاف",z:"السهوب والمراعي الجافة",c:"LC",en:0,
+ u:"حبل وورق تقليدي، حماية التربة، حرف يدوية",w:"ماي – جويلية",r:["kasserine","siliana","kef","gafsa","kairouan","sidi-bouzid"]},
+{s:"Lygeum spartum",a:"الحبالو",f:"Albardine (Sparto)",fa:"النجيلية",fl:"Poaceae",e:"🌾",img:null,
+ d:"عشبة سهبية أرقّ من الديّس، تنمو في الترب الملحية والجبسية التي تعجز عنها غيرها. تُشكّل مع رفيقاتها «الحيّاض» الخضراء الفاتحة في سهوب الوسط، وتُعد مؤشراً حيوياً على ترب خاصّة ذات قيمة حفظية.",
+ h:"الترب الملحية والجبسية في السهوب الداخلية.",b:"شبه جاف إلى جاف",z:"السهوب والمراعي الجافة",c:"LC",en:0,
+ u:"حبل، حرف تقليدية، تثبيت الترب الهشة",w:"أفريل – جوان",r:["kairouan","sidi-bouzid","gafsa","gabes","kasserine"]},
+{s:"Artemisia herba-alba",a:"الشِّيح",f:"Armoise blanche",fa:"المركبة",fl:"Asteraceae",e:"🌿",img:"armoise",
+ d:"شجيرة عطرية فضّية صغيرة، من أشهر الأعشاب الطبية العربية لتطهير الجهاز الهضمي. تجاذبها الرعاة والجمع التجاري جعلها متآزمة كثيراً، ممّا يستوجب تنظيم حصادها في سهوب الوسط والغرب.",
+ h:"السهوب شبه الجافة والمراعي الجبلية.",b:"شبه جاف",z:"السهوب والمراعي الجافة",c:"NT",en:0,
+ u:"طبي (الشيح)، عطري، تقليدي",w:"أكتوبر – ديسمبر",r:["kasserine","sidi-bouzid","gafsa","kef","siliana","kairouan"]},
+{s:"Thymelaea hirsuta",a:"المتَّنان",f:"Passerine hirsute",fa:"التيملاسية",fl:"Thymelaeaceae",e:"🌿",img:null,
+ d:"شجيرة سهبية كثيفة بأوراق رمادية دقيقة، تصمد أمام الرعي الجائر وتُشكّل مجتمعات دائمة الخضرة في السهوب الجافة. تُستعمل أليافها قديماً في الحبال، وهي حاجز طبيعي أمام زحف الرمال نحو المراعي.",
+ h:"السهوب الجافة، الرمال الساحلية والشاطئية الداخلية.",b:"شبه جاف إلى جاف",z:"السهوب والمراعي الجافة",c:"LC",en:0,
+ u:"ألياف، علف فقير، تثبيت الرمال",w:"أكتوبر – ديسمبر",r:["sfax","kairouan","gabes","medenine","mahdia"]}
+];
+SP.push(
+{s:"Salvia rosmarinus",a:"الأزير (إكليل الجبل)",f:"Romarin",fa:"الشفوية",fl:"Lamiaceae",e:"🌿",img:"rosemary",
+ d:"شجيرة عطرية دائمة الإزهار تقريباً، تُغطّي سفوح جبال الدرسة والشمال برائحتها المميزة وأزهارها الزرقاء الفاتحة. من أهم النباتات العطرية المُصدَّرة تاريخياً من تونس، لكن جمعها البري المكثّف يستوجب حماية مواقعها الأصلية.",
+ h:"السفوح الجبلية والأدغال الخفيفة.",b:"شبه رطب إلى شبه جاف",z:"الجبال والأدغال",c:"LC",en:0,
+ u:"عطري، طبي، طعام، تصدير",w:"على مدار السنة (ذروة: فبراير – أفريل)",r:["zaghouan","kasserine","kef","siliana","nabeul","bizerte","beja"]},
+{s:"Thymus algeriensis",a:"الزعتر البري",f:"Thym d'Algérie",fa:"الشفوية",fl:"Lamiaceae",e:"🌿",img:"thyme",
+ d:"زعتر عطري متوطّن في شمال أفريقيا، يفرش سجاداً وردياً على الجبال الكلسية في الربيع. زيوته الأساسية من الأغنى في السوق العالمية، وتراجع مكمناته الطبيعية بفعل الجمع والرعي يجعله مرشّحاً لبرامج الزراعة المستدامة.",
+ h:"المنحدرات الصخرية والهضاب شبه الجافة.",b:"شبه جاف",z:"السهوب والمراعي الجافة",c:"NT",en:0,
+ u:"طبي، عطري، زيت أساسي، طعام",w:"أفريل – جوان",r:["kasserine","siliana","kef","zaghouan","kairouan","gafsa","sidi-bouzid"]},
+{s:"Myrtus communis",a:"الآس (الريحان البري)",f:"Myrte commun",fa:"الآسية",fl:"Myrtaceae",e:"🌿",img:"myrtle",
+ d:"شجيرة دائمة الخضرة بوريقات لامعة وأزهار بيضاء أنيقة وثمار عُنّبية سوداء. تحمل في التراث التونسي رمز الفرح والزفاف، وتنمو في وديان الشمال الرطبة وقد تراجعت عزباتها البرية بشكل ملحوظ خلال العقود الأخيرة.",
+ h:"الأدغال الرطبة وضفاف الوديان في الشمال.",b:"رطب إلى شبه رطب",z:"الغابات الرطبة",c:"LC",en:0,
+ u:"عطري، طبي، تنسيق حدائق، رمزي",w:"جوان – أوت",r:["bizerte","beja","jendouba","nabeul","zaghouan"]},
+{s:"Arbutus unedo",a:"القَطّاد",f:"Arbousier (Arbouse)",fa:"الخلنجية",fl:"Ericaceae",e:"🍓",img:"arbutus",
+ d:"شجرة البلوطيات الرطبة بثمارها القرمزية اللذيذة، تُستعمل في المربى والمشروبات الشعبية. تُزهر في الخريف بينما تحمل ثمار السنة السابقة، وهو ما يمنحها مظهراً فريداً في الغابات الكروميرية.",
+ h:"الغابات الرطبة والشبه رطبة في كروميرية ومغود.",b:"رطب",z:"الغابات الرطبة",c:"LC",en:0,
+ u:"غذاء (مربى)، طبي، تنسيق",w:"أكتوبر – ديسمبر",r:["jendouba","beja","bizerte"]},
+{s:"Erica arborea",a:"الخلنج الشجري",f:"Bruyère arborescente",fa:"الخلنجية",fl:"Ericaceae",e:"🌸",img:"erica",
+ d:"شجيرة غابية عطرية بأزهار بيضاء كريمية على شكل أجراس تنبثق في أواخر الشتاء. خشبها «الخُلنج» الشهير في صناعة غليون التدخين الفاخرة، وتُشكّل مع البلوط الفليني علامة الغابات الأكثر رطوبةً في تونس.",
+ h:"الترب السيليسية في الغابات الرطبة الجبلية.",b:"رطب",z:"الغابات الرطبة",c:"LC",en:0,
+ u:"أخشاب غليون، عسل الخلنج، عطري",w:"فبراير – أفريل",r:["jendouba","beja","bizerte"]},
+{s:"Cistus salviifolius",a:"الصَّليان",f:"Ciste à feuilles de sauge",fa:"الصليانية",fl:"Cistaceae",e:"🌼",img:null,
+ d:"شجيرة متوسطية بأوراق تشبه المريمية وأزهار بيضاء مذهّلة قصيرة العمر تُفتح كل صباح. ترتبط جذورها بفطريات التربة فتساعد الأشجار الصغيرة على النمو، وتُشكّل المرحلة الأولى في تجدد الغابات المُحترقة.",
+ h:"الترب السيليسية الفقيرة، الأدغال المتجددرة.",b:"رطب إلى شبه رطب",z:"الغابات الرطبة",c:"LC",en:0,
+ u:"طبي (العسل)، تجدد الغابات، تنسيق",w:"أفريل – جوان",r:["bizerte","beja","jendouba","nabeul","zaghouan"]},
+{s:"Cyclamen africanum",a:"السيكلامن الأفريقي",f:"Cyclamen d'Afrique",fa:"الربيعية",fl:"Primulaceae",e:"🌺",img:"cyclamen",
+ d:"جوهرة متوطّنة في أقصى شمال أفريقيا، بأزهارها الوردية المرفوعة فوق أوراق قلبية مرقّطة تُزهَر في الخريف. تنمو في شقوق الصخور الجيرية بكروميرية ومغود فقط، وهي مهددة بجمعها كمزهريات وتُعد أولوية حفظ وطنية.",
+ h:"الصخور الجيرية والمنحدرات المظللة في أقصى الشمال الغربي.",b:"رطب",z:"الغابات الرطبة",c:"VU",en:1,
+ u:"زينة (حماية إلزامية)، علمية",w:"سبتمبر – نوفمبر",r:["jendouba","beja","bizerte"]},
+{s:"Astragalus armatus",a:"القَتاد المُدرَّع",f:"Astragale armé",fa:"البقولية",fl:"Fabaceae",e:"🌵",img:null,
+ d:"وسادة شوكية صلبة من متوطّنات شمال أفريقيا، تتسلّق الهضاب الجافة بأشواكها الفضية وقرونها الحريرية. تعمل «بيتاً» حاضناً لصغار النباتات في ظلّها وتحمي التربة من الانجراف، وتُعد نموذجاً مذهلاً للتكيّف مع العطش.",
+ h:"الهضاب والسفوح الجافة في الوسط والغرب.",b:"شبه جاف إلى جاف",z:"السهوب والمراعي الجافة",c:"NT",en:1,
+ u:"علمية، حماية التربة",w:"أفريل – جوان",r:["kasserine","gafsa","sidi-bouzid","kef"]},
+{s:"Nitraria retusa",a:"الغَرْقد",f:"Nitrarie rétuse",fa:"الغرقدية",fl:"Nitrariaceae",e:"🌿",img:null,
+ d:"شجيرة ملحية صحراوية ساحلية، تتسلّق سباخ الجنوب وأراضي واحات النخيل بجذورها الصامدة أمام الملوحة العالية. ثمارها الصغيرة الحمراء صالحة للأكل وغنية بالفيتامينات، وتُشكّل مع رفيقاتها الوحيدة الخضراء في المناظر الملحية القاسية.",
+ h:"السباخ الساحلية والترب المالحة حول الواحات.",b:"صحراوي",z:"السواحل والأراضي الرطبة",c:"VU",en:0,
+ u:"غذاء، طبي، تثبيت السباخ",w:"أفريل – جويلية",r:["gabes","kebili","medenine","tozeur"]},
+{s:"Tamarix gallica",a:"الأثل",f:"Tamaris",fa:"الأثلية",fl:"Tamaricaceae",e:"🌳",img:"tamarix",
+ d:"شجرة الأنهار والسباخ بأغصانها الرقيقة وأزهارها الوردية، علامة مميزة للسواحل الجنوبية. تقاوم الملح والرمل والجفاف في آن، وتُستخدم منذ القديم في تظليل الحقول وتثبيت ضفاف الوديان والواحات.",
+ h:"ضفاف الوديان، السباخ، حدود الواحات والبحيرات الساحلية.",b:"شبه جاف إلى صحراوي",z:"السواحل والأراضي الرطبة",c:"LC",en:0,
+ u:"تظليل، تثبيت الضفاف، طبي، وقود",w:"أفريل – جوان",r:["gabes","kebili","tozeur","sfax","kairouan","medenine","bizerte"]},
+{s:"Nerium oleander",a:"الدَّفلى (الفَقّاح)",f:"Laurier-rose",fa:"الدفلية",fl:"Apocynaceae",e:"🌺",img:"oleander",
+ d:"شجيرة الأودية والمجاري المائية بأزهارها الوردية المبهرة طوال الصيف، أشهر نبات جمالي في المتوسط. تتحمل الملوحة والجفاف، لكنّ سُميّتها في كامل الشجرة تشكل خطراً على الماشية إن أُكلت بالخطأ.",
+ h:"مجاري الوديان، القنوات، ضفاف الأنهار والبحيرات.",b:"شبه رطب إلى شبه جاف",z:"السواحل والأراضي الرطبة",c:"LC",en:0,
+ u:"تنسيق، طبي بحذر، تثبيت الضفاف",w:"ماي – سبتمبر",r:["kasserine","jendouba","beja","zaghouan","kairouan","gabes","siliana"]},
+{s:"Pancratium maritimum",a:"زُنبق البحر",f:"Lis de mer",fa:"النرجسية",fl:"Amaryllidaceae",e:"🌸",img:"sea-daffodil",
+ d:"زهرة الكثبان الرملية الأبيض العطر التي تُفتح في قلب الصيف فوق الرمل المباشر. بصلتها العميقة تُثبّت الكثبان، لكنّ المد السياحي على الشواطئ أضعف عزباتها كثيراً، ممّا يجعل حماية الكثبان أولوية.",
+ h:"الكثبان الرملية الساحلية على امتداد السواحل.",b:"شبه جاف ساحلي",z:"السواحل والأراضي الرطبة",c:"NT",en:0,
+ u:"زينة، عطري، علمية",w:"جوان – سبتمبر",r:["nabeul","sfax","mahdia","medenine","bizerte","monastir","sousse"]},
+{s:"Phoenix dactylifera",a:"النَّخلة",f:"Palmier dattier",fa:"النخلية",fl:"Arecaceae",e:"🌴",img:"palm",
+ d:"سيدة الواحات التونسية بأكثر من 250 صنفاً محلياً مُدرجاً منها «دقلة نور» الأشهر عالمياً. تُشكّل مع حقلها الواحي نظاماً بيئياً متكاملاً ثلاثي الطبقات يحمي الفواكه والخضر من الحرارة، وهي إرث زراعي مهدد بالأمراض الفطرية وزحف التصحر.",
+ h:"الواحات الصحراوية والمعاليق الجنوبية بمياه جوفية.",b:"صحراوي",z:"الواحات والصحراء",c:"LC",en:0,
+ u:"غذاء (التمر)، اقتصاد تصديري، نظام واحي متكامل",w:"أفريل – ماي (تلقيح يدوي)",r:["kebili","tozeur","gafsa","gabes","medenine","tataouine"]},
+{s:"Calligonum comosum",a:"الأَبَل",f:"Calligone comosum",fa:"الحمّاضية",fl:"Polygonaceae",e:"🌵",img:"calligonum",
+ d:"شجيرة رملية صحراوية بأغصانها الخضراء اللامعة وأزهارها البيضاء العطرة الليلية، من أهم مثبتات الكثبان المتحركة. جذورها تتسع أمتاراً في الرمل بحثاً عن الرطوبة، وهي نبات حماية أساسي ضد زحف الرمال على الطرق والواحات.",
+ h:"الكثبان المتحركة والأراضي الرملية الصحراوية.",b:"صحراوي",z:"الواحات والصحراء",c:"VU",en:0,
+ u:"تثبيت الكثبان، طبي، وقود تقليدي",w:"أفريل – ماي",r:["kebili","medenine","tataouine","tozeur"]},
+{s:"Capparis spinosa",a:"الكبَّار",f:"Câprier épineux",fa:"الشبهية",fl:"Capparaceae",e:"🌼",img:"caper",
+ d:"متفلّقة على الجدران والصخور بأزهارها البيضاء الرشيقة طويلة السداة، تُقطّف براعمها «الكبر» المحفوظة في الخل عالمياً. تتمسك بالجدار الأكثر جفافاً بجذورها العميقة، وتُعد من نباتات السهوب الساحلية ذات قيمة اقتصادية مباشرة.",
+ h:"الجدران القديمة، المنحدرات الصخرية، الأراضي الخالية.",b:"شبه جاف إلى جاف",z:"السهوب والمراعي الجافة",c:"LC",en:0,
+ u:"غذاء (الكبر)، طبي، اقتصادي",w:"ماي – أوت",r:["zaghouan","nabeul","kairouan","sfax","gabes","ben-arous","tunis"]}
+);
+
+/* ═══════════ LOGIQUE DE L'APPLICATION ═══════════ */
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const bySci=v=>SP.find(x=>x.s===v);
+const govById=id=>GOVS.find(g=>g[0]===id);
+function fmtDate(d){try{return new Intl.DateTimeFormat(dateLocale(),{day:"numeric",month:"long",year:"numeric"}).format(d)}catch(e){try{return d.toLocaleDateString(dateLocale())}catch(e2){return d.toISOString().slice(0,10)}}}
+
+const LS="tbi_obs_v1";
+const state={q:"",fam:"",st:"",zone:"",end:false,mapSp:"",areas:true,obsOn:true};
+let myObs=[];try{myObs=JSON.parse(localStorage.getItem(LS)||"[]")}catch(e){myObs=[]}
+function saveObs(){try{localStorage.setItem(LS,JSON.stringify(myObs))}catch(e){try{localStorage.setItem(LS,JSON.stringify(myObs.map(o=>({...o,photos:null}))));toast(T("tQuota"))}catch(e2){}}}
+const seedObs=OBS.map((o,i)=>({id:"s"+i,sci:o[0],region:o[1],observer:{ar:o[2],fr:o[3],en:o[4]},date:new Date(Date.now()-o[5]*864e5),notes:{ar:o[6],fr:o[7],en:o[8]},own:false}));
+/* Texte d'une observation selon la langue active — les observations utilisateur (chaîne simple) restent inchangées */
+const obsNote=o=>o.notes?(typeof o.notes==="object"?(o.notes[LANG]||o.notes.ar||""):o.notes):"";
+const obsWho=o=>o.observer?(typeof o.observer==="object"?(o.observer[LANG]||o.observer.ar||""):o.observer):"";
+const allObs=()=>myObs.map(o=>({...o,date:new Date(o.date),own:true})).concat(seedObs).sort((a,b)=>b.date-a.date);
+
+/* ─── Navigation ─── */
+function switchTab(n){
+  $$("section.panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+n));
+  $$(".tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===n));
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(n==="map")requestAnimationFrame(()=>{initMap();if(map)setTimeout(()=>map.invalidateSize(),120)});
+}
+
+/* ─── Tableau de bord ─── */
+function renderKPI(){
+  const fams=new Set(SP.map(s=>s.fl)).size;
+  const k=[["i-sprout",SP.length,T("kSp")],["i-layers",fams,T("kFam")],["i-pin",GOVS.length,T("kGov")],
+  ["i-tent",AREAS.length,T("kArea")],["i-star",SP.filter(s=>s.en).length,T("kEnd")],["i-eye",allObs().length,T("kObs")]];
+  $("#kpiGrid").innerHTML=k.map(x=>`<div class="kpi"><span class="ico"><svg><use href="#${x[0]}"/></svg></span><b>${x[1]}</b><span>${x[2]}</span></div>`).join("");
+}
+function renderBars(){
+  const counts=ZONE_ORDER.map(z=>[z,SP.filter(s=>s.z===z).length]);const max=Math.max.apply(null,counts.map(c=>c[1]));
+  $("#zoneBars").innerHTML=counts.map(c=>`<div class="bar-row"><span class="lbl"><i style="background:${ZONES[c[0]].c}"></i>${zoneName(c[0])}</span><span class="track"><span class="fill" style="width:${Math.round(c[1]/max*100)}%;background:${ZONES[c[0]].c}"></span></span><span class="num">${c[1]}</span></div>`).join("");
+}
+function renderDonut(){
+  const order=["LC","NT","VU","EN","CR"],C=251.327;let off=0;
+  const counts=order.map(k=>({k,n:SP.filter(s=>s.c===k).length})).filter(x=>x.n>0);
+  const segs=counts.map(x=>{const len=x.n/SP.length*C;const seg=`<circle r="40" cx="50" cy="50" fill="none" stroke="${IUCN[x.k].c}" stroke-width="16" stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}"/>`;off+=len;return seg}).join("");
+  $("#donut").innerHTML=`<svg width="150" height="150" viewBox="0 0 100 100" style="transform:rotate(-90deg)"><circle r="40" cx="50" cy="50" fill="none" stroke="#efeee4" stroke-width="16"/>${segs}<text x="50" y="52" text-anchor="middle" dominant-baseline="central" transform="rotate(90 50 50)" style="font:900 13px Cairo,sans-serif;fill:#1a2b22">${SP.length}</text></svg>`;
+  $("#donutLegend").innerHTML=order.map(k=>`<div class="dl-row"><i style="background:${IUCN[k].c}"></i>${iucnName(k)} <small style="color:#93a89d;font-weight:600">${LANG==="ar"?IUCN[k].fr:(LANG==="fr"?IUCN_EN[k]:IUCN[k].fr)}</small><b>${SP.filter(s=>s.c===k).length}</b></div>`).join("");
+}
+function renderZoneCards(){
+  $("#zoneCards").innerHTML=ZONE_ORDER.map(z=>{const n=SP.filter(s=>s.z===z).length;
+  return `<div class="zone-card" onclick="TBI.zoneTo('${z}')"><div class="bar" style="background:${ZONES[z].c}"></div><h4>${zoneName(z)}</h4><p>${zoneDesc(z)}</p><span class="n">${TT("nSpTpl",{n})}</span></div>`}).join("");
+}
+function renderThreat(){
+  const list=SP.map((s,i)=>[i,s]).filter(p=>"VU EN CR".indexOf(p[1].c)>=0);
+  $("#threatScroll").innerHTML=list.map(([i,s])=>{const img=s.img&&IMG[s.img]?IMG[s.img]:null;const st=IUCN[s.c];
+  return `<div class="th-card" onclick="TBI.sp(${i})"><div class="th-img"><span class="em">${s.e}</span>${img?`<img src="${img}" alt="${esc(spName(s))}" loading="lazy" onerror="this.remove()">`:""}<span class="st" style="color:${st.c}">${iucnName(s.c)}</span></div><div class="th-body"><span class="sci">${s.s}</span><b>${spName(s)}</b><span>${spSub(s)}</span></div></div>`}).join("");
+}
+function renderLatest(){
+  const top=allObs().slice(0,6);
+  $("#latestObs").innerHTML=top.map(o=>{const s=bySci(o.sci),g=govById(o.region);if(!s||!g)return"";
+  return `<div class="ol-row"><span class="em">${s.e}</span><div class="txt"><b>${spName(s)}</b> <span class="sci">${s.s}</span><small>${obsNote(o)?esc(obsNote(o)):""}</small></div><div class="who"><b>${govName(g)}</b>${fmtDate(o.date)} · ${esc(obsWho(o))}</div></div>`}).join("")||'<div class="ol-row">'+T("noObs2")+'</div>';
+}
+
+/* ─── Inventaire ─── */
+function renderOptions(){
+  const keep={fam:$("#fFam").value,st:$("#fSt").value,zone:$("#fZone").value,msp:$("#mSp").value,osp:$("#oSp").value,ogov:$("#oGov").value};
+  const fams=[...new Set(SP.map(s=>s.fl))].sort();
+  $("#fFam").innerHTML=`<option value="">${T("allFams")}</option>`+fams.map(f=>{const s=SP.find(x=>x.fl===f);return `<option value="${f}">${LANG==="ar"?s.fa+" · "+f:f}</option>`}).join("");
+  $("#fSt").innerHTML=`<option value="">${T("allSt")}</option>`+["LC","NT","VU","EN","CR"].map(k=>`<option value="${k}">${iucnName(k)} (${k})</option>`).join("");
+  $("#fZone").innerHTML=`<option value="">${T("allZones")}</option>`+ZONE_ORDER.map(z=>`<option value="${z}">${zoneName(z)}</option>`).join("");
+  $("#mSp").innerHTML=`<option value="">${T("allSp")}</option>`+SP.map((s,i)=>`<option value="${i}">${spName(s)} — ${s.s}</option>`).join("");
+  $("#oSp").innerHTML=`<option value="">${T("pickSp")}</option>`+SP.map(s=>`<option value="${s.s}">${s.e} ${spName(s)} (${s.s})</option>`).join("");
+  $("#oGov").innerHTML=`<option value="">${T("pickGov")}</option>`+GOVS.map(g=>`<option value="${g[0]}">${LANG==="ar"?g[1]+" — "+g[2]:govName(g)}</option>`).join("");
+  $("#fFam").value=keep.fam;$("#fSt").value=keep.st;$("#fZone").value=keep.zone;$("#mSp").value=keep.msp;$("#oSp").value=keep.osp;$("#oGov").value=keep.ogov;
+  $("#oDate").value=$("#oDate").value||new Date().toISOString().slice(0,10);
+}
+function filtered(){
+  const q=state.q.trim().toLowerCase();
+  return SP.map((s,i)=>[i,s]).filter(p=>{const s=p[1];
+    return (!state.fam||s.fl===state.fam)&&(!state.st||s.c===state.st)&&(!state.zone||s.z===state.zone)&&(!state.end||s.en)&&
+    (!q||(s.s+" "+s.a+" "+s.f+" "+s.fl+" "+((SPX[s.s]||{}).en&&SPX[s.s].en.n||"")+" "+zoneName(s.z)).toLowerCase().includes(q))});
+}
+function cardHTML(i,s){
+  const img=s.img&&IMG[s.img]?IMG[s.img]:null,st=IUCN[s.c];
+  return `<article class="sp-card" onclick="TBI.sp(${i})">
+  <div class="sp-img"><span class="em">${s.e}</span>${img?`<img src="${img}" alt="${esc(spName(s))}" loading="lazy" onerror="this.remove()">`:""}
+  <span class="st" style="background:${st.c}">${iucnName(s.c)}</span>${s.en?`<span class="en">${T("endemic")}</span>`:""}</div>
+  <div class="sp-body"><span class="sci">${s.s}</span><b>${spName(s)}</b><span class="fr">${spSub(s)}</span>
+  <div class="sp-meta"><span class="mini"><i style="background:${ZONES[s.z].c}"></i>${zoneName(s.z)}</span><span class="mini">☀️ ${bioName(s.b)}</span></div></div>
+  <div class="sp-foot"><span class="fam">${s.fl}</span><span class="more">${T("viewCard")} ${LANG==="ar"?"←":"→"}</span></div></article>`;
+}
+function renderGrid(){
+  const list=filtered();
+  $("#countLine").innerHTML=TT("countTpl",{n:list.length,t:SP.length});
+  $("#grid").innerHTML=list.length?list.map(p=>cardHTML(p[0],p[1])).join(""):
+  `<div class="empty"><svg><use href="#i-search"/></svg><b>${T("noRes")}</b><span>${T("noResHint")}</span></div>`;
+}
+function resetFilters(){
+  state.q="";state.fam="";state.st="";state.zone="";state.end=false;
+  $("#q").value="";$("#fFam").value="";$("#fSt").value="";$("#fZone").value="";
+  $("#chEnd").classList.remove("on");renderGrid();
+}
+
+/* ─── Fiche espèce (modal) ─── */
+function openSp(i){
+  const s=SP[i];if(!s)return;
+  const img=s.img&&IMG[s.img]?IMG[s.img]:null,st=IUCN[s.c],zc=ZONES[s.z].c;
+  const regs=s.r.map(govById).filter(Boolean);
+  const rel=allObs().filter(o=>o.sci===s.s).length;
+  $("#modalBox").innerHTML=`
+  <div class="m-hero"><span class="em-fallback">${s.e}</span>${img?`<img src="${img}" alt="${esc(spName(s))}" onerror="this.remove()">`:""}<div class="shade"></div>
+    <button class="close" onclick="TBI.close()" aria-label="${T("mClose")}"><svg><use href="#i-x"/></svg></button>
+    <div class="head"><span class="sci">${s.s} · ${s.fl}</span><h2>${spName(s)}</h2><span class="fr">${spSub(s)}</span></div></div>
+  <div class="m-badges">
+    <span class="b" style="background:${st.c}"><i></i>${s.c} · ${iucnName(s.c)}</span>
+    <span class="b" style="background:${zc}"><i></i>${zoneName(s.z)}</span>
+    ${s.en?`<span class="b" style="background:#92400e"><i></i>${T("endemic")}</span>`:""}
+    <span class="b ghost">☀️ ${bioName(s.b)}</span></div>
+  <div class="m-body"><div class="m-grid">
+    <div class="m-sec wide"><h4>${T("mDesc")}</h4><p>${spTxt(s,"d")}</p></div>
+    <div class="m-sec"><h4>${T("mHab")}</h4><p>${spTxt(s,"h")}</p></div>
+    <div class="m-sec"><h4>${T("mUse")}</h4><p>${spTxt(s,"u")}</p></div>
+    <div class="m-sec"><h4>${T("mFlow")}</h4><p>${spTxt(s,"w")}</p></div>
+    <div class="m-sec"><h4>${TT("mDistTpl",{g:regs.length,o:rel})}</h4>
+      <div class="m-reg">${regs.map(g=>`<span class="mini">${govName(g)} <small style="color:#93a89d">${LANG==="ar"?g[2]:g[1]}</small></span>`).join("")}</div></div>
+  </div>
+  <div class="m-cta"><button class="btn-map" onclick="TBI.close();TBI.onMap(${i})"><svg><use href="#i-map"/></svg>${T("mOnMap")}</button>
+  <button class="btn-plain" onclick="TBI.close()">${T("mClose")}</button></div></div>`;
+  $("#overlay").classList.add("show");document.body.style.overflow="hidden";
+}
+function closeModal(){$("#overlay").classList.remove("show");document.body.style.overflow=""}
+
+/* ─── Carte ─── */
+let map=null,gLayer=null,aLayer=null,oLayer=null,mapsInit=false,apins={};
+
+/* ─── Fonds de carte (basemaps) ─── */
+const TUN_T={z:7,x:67,y:50};
+const BASEMAPS=[
+ {id:"gsat",ar:"قمر صناعي",fr:"Google Satellite",en:"Satellite",em:"🛰️",url:"https://{s}.google.com/vt/lyrs=s&hl=ar&x={x}&y={y}&z={z}",sub:["mt0","mt1","mt2","mt3"],maxZ:19,attr:"&copy; Google"},
+ {id:"osm",ar:"خريطة OSM",fr:"OpenStreetMap",en:"OpenStreetMap",em:"🗺️",url:"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",sub:"abc",maxZ:19,attr:"&copy; مساهمو OpenStreetMap"},
+ {id:"topo",ar:"طبوغرافية",fr:"OpenTopoMap",en:"Topographic",em:"🏔️",url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",sub:"abc",maxZ:17,attr:"&copy; OpenTopoMap · CC-BY-SA"},
+ {id:"gst",ar:"شوارع وحضر",fr:"Google Plan",en:"Streets",em:"🏙️",url:"https://{s}.google.com/vt/lyrs=m&hl=ar&x={x}&y={y}&z={z}",sub:["mt0","mt1","mt2","mt3"],maxZ:19,attr:"&copy; Google"},
+ {id:"ghyb",ar:"قمر صناعي + أسماء",fr:"Google Hybride",en:"Hybrid",em:"🌍",url:"https://{s}.google.com/vt/lyrs=y&hl=ar&x={x}&y={y}&z={z}",sub:["mt0","mt1","mt2","mt3"],maxZ:19,attr:"&copy; Google"},
+ {id:"gter",ar:"تضاريس وطبيعة",fr:"Google Relief",en:"Terrain",em:"⛰️",url:"https://{s}.google.com/vt/lyrs=p&hl=ar&x={x}&y={y}&z={z}",sub:["mt0","mt1","mt2","mt3"],maxZ:19,attr:"&copy; Google"},
+ {id:"esri",ar:"مرئيات فضائية",fr:"Esri World Imagery",en:"Esri Imagery",em:"🛰️",url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",maxZ:19,attr:"&copy; Esri · Maxar · Earthstar Geographics"},
+ {id:"carto",ar:"خريطة فاتحة",fr:"CARTO Voyager",en:"CARTO Voyager",em:"🧭",url:"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",sub:"abcd",maxZ:20,attr:"&copy; CARTO · &copy; OpenStreetMap"}
+];
+const DEFAULT_BM="gsat";
+let baseLayer=null,bmOpenState=false,bmChipT=null,bmCur=null;
+function thumbUrl(b){
+  if(b.thumb)return b.thumb;
+  return b.url.replace("{s}",(b.sub||"a")[0]).replace("{r}","").replace("{z}",TUN_T.z).replace("{x}",TUN_T.x).replace("{y}",TUN_T.y);
+}
+function bmLayer(b){
+  if(b.embedded)return new (L.TileLayer.extend({getTileUrl:function(c){c.z=this._getZoomForUrl();return TILES[c.z+"/"+c.x+"/"+c.y]||BLANK_TILE}}))({minZoom:b.minZ,maxNativeZoom:b.maxZ,maxZoom:b.maxZ+2,noWrap:true,attribution:b.attr});
+  return L.tileLayer(b.url,{subdomains:b.sub||"abc",maxNativeZoom:b.maxZ,maxZoom:b.maxZ+2,attribution:b.attr});
+}
+function switchBasemap(id,quiet){
+  if(!map)return;
+  const b=BASEMAPS.find(x=>x.id===id)||BASEMAPS.find(x=>x.id===DEFAULT_BM)||BASEMAPS[0];
+  bmCur=b.id;
+  try{localStorage.setItem("tbi-basemap",b.id)}catch(e){}
+  if(baseLayer)map.removeLayer(baseLayer);
+  baseLayer=bmLayer(b);baseLayer.addTo(map);
+  map.setMinZoom(b.minZ||2);map.setMaxZoom(b.maxZ+2);
+  if(map.getZoom()>b.maxZ+2)map.setZoom(b.maxZ+2);else if(map.getZoom()<(b.minZ||2))map.setZoom(b.minZ||2);
+  document.querySelectorAll(".bm-card").forEach(c=>c.classList.toggle("on",BASEMAPS[+c.dataset.i].id===b.id));
+  if(!quiet){const chip=$("#bmChip");chip.textContent=TT("bmChipTpl",{b:(b.em||"🗺️")+" "+bmName(b)});chip.classList.add("show");clearTimeout(bmChipT);bmChipT=setTimeout(()=>chip.classList.remove("show"),1900)}
+}
+function toggleBM(force){
+  bmOpenState=(force!==undefined)?force:!bmOpenState;
+  $("#bmPanel").classList.toggle("open",bmOpenState);
+  $("#bmBtn").classList.toggle("open",bmOpenState);
+  $("#bmBtn").setAttribute("aria-expanded",String(bmOpenState));
+}
+function renderBasemaps(){
+  $("#bmGrid").innerHTML=BASEMAPS.map((b,i)=>`<button type="button" class="bm-card${b.id===bmCur?" on":""}" data-i="${i}" onclick="TBI.bm('${b.id}')">
+    <span class="bm-top"><img class="bm-thumb" src="${thumbUrl(b)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="bm-fb">${b.em}</span><span class="bm-check"><svg><use href="#i-check"/></svg></span></span>
+    <span class="bm-name">${bmName(b)}</span><span class="bm-fr">${LANG==="ar"?b.fr:b.ar}</span></button>`).join("");
+}
+function initBasemaps(){
+  renderBasemaps();
+  $("#bmBtn").addEventListener("click",e=>{e.stopPropagation();toggleBM()});
+  $("#bmClose").addEventListener("click",()=>toggleBM(false));
+  document.addEventListener("click",e=>{if(bmOpenState&&!e.target.closest(".bm-panel")&&!e.target.closest("#bmBtn"))toggleBM(false)});
+  let saved=null;try{saved=localStorage.getItem("tbi-basemap")}catch(e){}
+  switchBasemap(saved||DEFAULT_BM,true);
+}
+function initMap(){
+  if(mapsInit)return;mapsInit=true;
+  if(typeof L==="undefined"){$("#map").innerHTML='<div class="map-off">'+T("mapOff")+'</div>';return;}
+  map=L.map("map",{scrollWheelZoom:true}).setView([34.6,9.5],7);
+  initBasemaps();
+  gLayer=L.layerGroup().addTo(map);aLayer=L.layerGroup().addTo(map);oLayer=L.layerGroup().addTo(map);
+  drawMap();
+}
+function drawMap(){drawGovs();drawAreas();drawObs();updateMapStats()}
+function govPopup(g,pairs){
+  const items=pairs.slice(0,10).map(p=>`<div style="white-space:nowrap"><span style="color:${IUCN[p[1].c].c};font-weight:900">●</span> <a href="#" onclick="TBI.sp(${p[0]});return false" style="color:#1d5c38;font-weight:800;text-decoration:none">${spName(p[1])}</a> <i style="color:#8aa094;font-size:11px">${p[1].s}</i></div>`).join("");
+  return `<div style="min-width:200px"><b>${govName(g)} <small style="color:#5c6f65">${LANG==="ar"?"("+g[2]+")":""}</small></b><div style="margin:3px 0;font-weight:800;color:#1d5c38">${TT("spDocTpl",{n:pairs.length})}</div>${items||"<i>"+T("noData")+"</i>"}${pairs.length>10?`<div style="font-weight:700;color:#5c6f65">${TT("moreSpTpl",{n:pairs.length-10})}</div>`:""}</div>`;
+}
+function drawGovs(){
+  if(!gLayer)return;gLayer.clearLayers();
+  if(state.mapSp!==""){const i=+state.mapSp,s=SP[i];if(!s)return;
+    s.r.forEach(id=>{const g=govById(id);if(!g)return;
+      L.circleMarker([g[3],g[4]],{radius:11,color:"#fff",weight:2,fillColor:IUCN[s.c].c,fillOpacity:.93}).bindPopup(govPopup(g,[[i,s]])).addTo(gLayer)});
+    const pts=s.r.map(id=>{const g=govById(id);return g?[g[3],g[4]]:null}).filter(Boolean);
+    if(pts.length&&map)map.fitBounds(L.latLngBounds(pts).pad(.5));return}
+  GOVS.forEach(g=>{const pairs=SP.map((s,i)=>[i,s]).filter(p=>p[1].r.indexOf(g[0])>=0);
+    L.circleMarker([g[3],g[4]],{radius:4+Math.min(15,pairs.length*1.6),color:"#fff",weight:1.5,
+      fillColor:g[5]==="الشمال"?"#1d5c38":(g[5]==="الوسط"?"#a16207":"#b45309"),fillOpacity:.85}).bindPopup(govPopup(g,pairs)).addTo(gLayer)});
+}
+function drawAreas(){
+  if(!aLayer)return;aLayer.clearLayers();apins={};if(!state.areas)return;
+  AREAS.forEach(a=>{const m=L.marker([a.lat,a.lng],{icon:L.divIcon({className:"apin-wrap",html:'<div class="apin">🛡️</div>',iconSize:[34,34],iconAnchor:[17,17]})})
+    .bindTooltip(areaName(a),{direction:"top",offset:[0,-14]})
+    .bindPopup(`<div style="min-width:210px"><b>${areaName(a)}</b><br><small style="color:#5c6f65">${LANG==="ar"?a.nf:a.n}</small><br><span style="color:#c2703d;font-weight:800">${areaType(a)}</span> · ${a.a} ${T("ha")}<div style="margin-top:6px;font-size:12.5px;color:#3d4f46">${areaDesc(a)}</div></div>`).addTo(aLayer);
+    apins[a.id]=m});
+}
+function drawObs(){
+  if(!oLayer)return;oLayer.clearLayers();if(!state.obsOn)return;
+  allObs().forEach(o=>{const g=govById(o.region);if(!g)return;const s=bySci(o.sci);if(!s)return;
+    const hasC=o.lat!=null&&o.lng!=null&&isFinite(+o.lat)&&isFinite(+o.lng);
+    const jx=hasC?0:((o.id.charCodeAt(o.id.length-1)||5)%7-3)*0.045,jy=hasC?0:((o.id.length*3)%7-3)*0.045;
+    const phRow=o.photos?`<div class="pp-ph">${["N","E","S","W"].filter(d=>o.photos[d]).map(d=>`<figure><img src="${o.photos[d]}" alt="${d}" onclick="TBI.photo(this.src,'${d}')"><figcaption>${d}</figcaption></figure>`).join("")}</div>`:"";
+    L.circleMarker([hasC?+o.lat:g[3]+jy,hasC?+o.lng:g[4]+jx],{radius:hasC?6:5.5,color:hasC?"#92400e":"#fff",weight:hasC?2.5:1.5,fillColor:hasC?"#c9a227":"#c2703d",fillOpacity:.95})
+     .bindPopup(`<div style="min-width:180px"><b>${s.e} ${spName(s)}</b> <i style="color:#8aa094;font-size:11px">${s.s}</i><br><b style="color:#c2703d">📍 ${govName(g)}</b> · ${fmtDate(o.date)}<br><b style="font-size:11.5px">👤 ${esc(obsWho(o))}</b>${o.own?` <span style="background:#fef3c7;color:#92400e;font-size:9.5px;font-weight:800;padding:1px 7px;border-radius:99px">${T("myObs")}</span>`:""}${hasC?`<div style="margin-top:4px;font-size:11px;color:#1d5c38;font-weight:800">🧭 ${(+o.lat).toFixed(5)}, ${(+o.lng).toFixed(5)} <small style="color:#8aa094">WGS84</small></div>`:""}${phRow}<div style="margin-top:4px;font-size:12px;color:#3d4f46">${obsNote(o)?esc(obsNote(o)):""}</div></div>`).addTo(oLayer)});
+  updateMapStats();
+}
+function updateMapStats(){$("#msObs").textContent=allObs().length}
+function showOnMap(i){
+  state.mapSp=String(i);$("#mSp").value=state.mapSp;
+  switchTab("map");requestAnimationFrame(()=>{initMap();if(map)setTimeout(drawGovs,150)});
+}
+function flyToArea(id){
+  switchTab("map");requestAnimationFrame(()=>{initMap();if(!map)return;
+    const a=AREAS.find(x=>x.id===id);if(!a)return;
+    setTimeout(()=>{map.flyTo([a.lat,a.lng],10,{duration:1});if(apins[id])apins[id].openPopup()},280)});
+}
+
+/* ─── Conservation ─── */
+function renderUicn(){
+  $("#uicnStrip").innerHTML=["LC","NT","VU","EN","CR"].map(k=>{const n=SP.filter(s=>s.c===k).length;
+  return `<div class="uicn-cell" style="background:${IUCN[k].c}"><b>${k} · ${iucnName(k)}</b><span>${LANG==="ar"?IUCN[k].fr:(LANG==="fr"?IUCN_EN[k]:IUCN[k].fr)}${n?" — "+n:""}</span></div>`}).join("");
+}
+function renderAreas(){
+  $("#areasGrid").innerHTML=AREAS.map(a=>`<div class="ar-card">
+  <div class="top"><span class="em">🛡️</span><div><h4>${areaName(a)}</h4><small>${LANG==="ar"?a.nf:(LANG==="fr"?a.n:a.nf)}</small></div></div>
+  <p>${areaDesc(a)}</p>
+  <div class="ar-foot"><span>📍 ${areaGov(a)} · ${a.a} ${T("ha")}</span><button class="go" onclick="TBI.area('${a.id}')">${T("goMap")}</button></div></div>`).join("");
+}
+
+/* ─── Observations ─── */
+function renderObs(){
+  const list=allObs();
+  $("#obsCount").textContent=list.length;
+  const hasC=o=>o.lat!=null&&o.lng!=null&&isFinite(+o.lat)&&isFinite(+o.lng);
+  $("#obsList").innerHTML=list.map(o=>{const s=bySci(o.sci),g=govById(o.region);if(!s||!g)return"";
+  return `<div class="lo-row"><span class="em">${s.e}</span>
+  <div class="txt"><b>${spName(s)}</b><span class="sci">${s.s}</span>
+    <div class="meta"><span>📍 ${govName(g)}</span><span>📅 ${fmtDate(o.date)}</span><span>👤 ${esc(obsWho(o))}</span>${o.own?`<span class="own-badge">${T("myObs")}</span>`:""}</div>
+    ${hasC(o)?`<span class="coord-chip">🧭 ${(+o.lat).toFixed(5)}, ${(+o.lng).toFixed(5)} <small>WGS84</small></span>`:""}
+    ${o.photos?`<div class="lo-photos">${["N","E","S","W"].filter(d=>o.photos[d]).map(d=>`<figure><img src="${o.photos[d]}" alt="${d}" loading="lazy" onclick="TBI.photo(this.src,'${d}')"><figcaption>${d}</figcaption></figure>`).join("")}</div>`:""}
+    <div class="notes">${obsNote(o)?esc(obsNote(o)):""}</div></div>
+  ${o.own?`<button class="del" title="${T("tDel")}" onclick="TBI.del('${o.id}')"><svg><use href="#i-trash"/></svg></button>`:""}</div>`}).join("")||`<div class="lo-row"><div class="txt">${T("noObs")}</div></div>`;
+}
+function onSubmit(e){
+  e.preventDefault();
+  const sci=$("#oSp").value,region=$("#oGov").value,observer=$("#oWho").value.trim(),notes=$("#oNote").value.trim(),date=$("#oDate").value;
+  if(!sci||!region||!observer){toast(T("tReq"));return}
+  const latV=$("#oLat").value.trim(),lngV=$("#oLng").value.trim();let lat=null,lng=null;
+  if(latV!==""||lngV!==""){
+    lat=parseFloat(latV.replace(",","."));lng=parseFloat(lngV.replace(",","."));
+    if(!isFinite(lat)||!isFinite(lng)){toast(T("tCoordFmt"));return}
+    if(lat<30||lat>38||lng<7||lng>13){toast(T("tCoordTun"));return}}
+  const photos={};["N","E","S","W"].forEach(d=>{if(phData[d])photos[d]=phData[d]});
+  myObs.push({id:"u"+Date.now(),sci,region,observer:observer,notes:notes,date:date,own:true,lat:lat,lng:lng,photos:Object.keys(photos).length?photos:null});
+  saveObs();e.target.reset();$("#oDate").value=new Date().toISOString().slice(0,10);resetPhotos();
+  renderObs();renderKPI();renderLatest();if(mapsInit)drawObs();
+  toast(T("tOk"));
+}
+function delObs(id){
+  myObs=myObs.filter(o=>o.id!==id);saveObs();
+  renderObs();renderKPI();renderLatest();if(mapsInit)drawObs();
+  toast(T("tDel"));
+}
+let toastTimer=null;
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),3200)}
+
+/* ─── API publique + init ─── */
+window.TBI={tab:switchTab,sp:openSp,close:closeModal,onMap:showOnMap,area:flyToArea,del:delObs,bm:switchBasemap,bmToggle:toggleBM,photo:openPhoto,lang:setLang,zoneTo:z=>{state.zone=z;$("#fZone").value=z;renderGrid();switchTab("inventory")}};
+document.getElementById("navTabs").addEventListener("click",e=>{const b=e.target.closest(".tab-btn");if(b)switchTab(b.dataset.tab)});
+$("#q").addEventListener("input",e=>{state.q=e.target.value;renderGrid()});
+$("#fFam").addEventListener("change",e=>{state.fam=e.target.value;renderGrid()});
+$("#fSt").addEventListener("change",e=>{state.st=e.target.value;renderGrid()});
+$("#fZone").addEventListener("change",e=>{state.zone=e.target.value;renderGrid()});
+$("#chEnd").addEventListener("click",e=>{state.end=!state.end;e.currentTarget.classList.toggle("on",state.end);renderGrid()});
+$("#chReset").addEventListener("click",resetFilters);
+$("#mSp").addEventListener("change",e=>{state.mapSp=e.target.value;drawGovs();if(state.mapSp===""&&map)map.flyTo([34.6,9.5],7)});
+$("#tglAreas").addEventListener("click",()=>{state.areas=!state.areas;$("#tglAreas").classList.toggle("on",state.areas);drawAreas()});
+$("#tglObs").addEventListener("click",()=>{state.obsOn=!state.obsOn;$("#tglObs").classList.toggle("on",state.obsOn);drawObs()});
+$("#obsForm").addEventListener("submit",onSubmit);
+$("#overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closePhoto();if(bmOpenState)toggleBM(false)}});
+document.getElementById("langSw").addEventListener("click",e=>{const b=e.target.closest("button[data-lang]");if(b)setLang(b.dataset.lang)});
+$("#lightbox").addEventListener("click",closePhoto);
+
+/* ─── Langue : synchronisation complète ─── */
+function renderAll(){renderOptions();renderKPI();renderBars();renderDonut();renderZoneCards();renderThreat();renderLatest();renderGrid();renderUicn();renderAreas();renderObs();renderBasemaps();if(mapsInit)drawMap()}
+function setLang(lang,silent){
+  LANG=UI[lang]?lang:"ar";
+  try{localStorage.setItem("tbi-lang",LANG)}catch(e){}
+  const rtl=LANG==="ar";
+  document.documentElement.lang=LANG;document.documentElement.dir=rtl?"rtl":"ltr";
+  document.title=T("title");
+  $$("[data-i18n]").forEach(el=>{el.textContent=T(el.dataset.i18n)});
+  $$("[data-i18n-html]").forEach(el=>{el.innerHTML=T(el.dataset.i18nHtml)});
+  $$("[data-i18n-ph]").forEach(el=>{el.placeholder=T(el.dataset.i18nPh)});
+  const bb=$("#bmBtn");if(bb){bb.title=T("bmTitle");bb.setAttribute("aria-label",T("bmTitle"))}
+  const bp=$("#bmPanel");if(bp)bp.setAttribute("aria-label",T("bmPanelT"));
+  const lc=$("#langSw");if(lc)lc.setAttribute("aria-label",T("ariaLang"));
+  $$(".lang-sw button").forEach(b=>b.classList.toggle("active",b.dataset.lang===LANG));
+  renderAll();
+  if(!silent)toast(T("tLang"));
+}
+
+/* ─── Photos N/E/S/O ─── */
+function compressImg(file,maxW,q){return new Promise((res,rej)=>{const img=new Image(),url=URL.createObjectURL(file);
+  img.onload=()=>{try{const c=document.createElement("canvas"),sc=Math.min(1,maxW/img.width);c.width=Math.max(1,Math.round(img.width*sc));c.height=Math.max(1,Math.round(img.height*sc));c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL("image/jpeg",q))}catch(err){URL.revokeObjectURL(url);rej(err)}};
+  img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error("img"))};img.src=url})}
+const phData={N:null,E:null,S:null,W:null};
+function resetPhotos(){["N","E","S","W"].forEach(d=>{phData[d]=null;const b=document.querySelector(`.ph-box[data-dir="${d}"]`);if(!b)return;b.classList.remove("has");const p=b.querySelector(".ph-prev");p.removeAttribute("src");p.hidden=true;b.querySelector(".ph-del").hidden=true;b.querySelector("input[type=file]").value=""})}
+function bindPhotos(){
+  $$("#phGrid .ph-box").forEach(box=>{const dir=box.dataset.dir,input=box.querySelector("input[type=file]");
+    input.addEventListener("change",()=>{const f=input.files&&input.files[0];if(!f)return;
+      if(!f.type.startsWith("image/")){toast(T("tImg"));input.value="";return}
+      compressImg(f,640,.62).then(uri=>{phData[dir]=uri;box.classList.add("has");const p=box.querySelector(".ph-prev");p.src=uri;p.hidden=false;box.querySelector(".ph-del").hidden=false}).catch(()=>{toast(T("tImg"))});
+      input.value=""});
+    box.querySelector(".ph-del").addEventListener("click",()=>{phData[dir]=null;box.classList.remove("has");const p=box.querySelector(".ph-prev");p.removeAttribute("src");p.hidden=true;box.querySelector(".ph-del").hidden=true;input.value=""});
+  });
+}
+function openPhoto(src,cap){$("#lbImg").src=src;$("#lbCap").textContent=(T("dir"+cap)||cap)+" · WGS84";$("#lightbox").classList.add("show")}
+function closePhoto(){$("#lightbox").classList.remove("show")}
+
+/* ─── Init ─── */
+bindPhotos();
+let savedLang="ar";try{savedLang=localStorage.getItem("tbi-lang")||"ar"}catch(e){}
+setLang(savedLang,true);
+</script>
+</body>
+</html>

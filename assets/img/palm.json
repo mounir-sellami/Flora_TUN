@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "date palm oasis Tunisia Phoenix dactylifera",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/402a18ff56f1.jpg",
+      "caption": "",
+      "source": "www.plantgrower.org",
+      "original_width": "1100px",
+      "original_height": "733px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/e89b83d4642c.jpg",
+      "caption": "",
+      "source": "Tripadvisor",
+      "original_width": "1200px",
+      "original_height": "1200px"
+    }
+  ]
+}

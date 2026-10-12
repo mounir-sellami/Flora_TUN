@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "Erica arborea tree heath white flowers",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/ecc40286988b.jpg",
+      "caption": "",
+      "source": "Dreamstime",
+      "original_width": "1065px",
+      "original_height": "1690px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/9307affc0461.jpg",
+      "caption": "",
+      "source": "Amazon UK",
+      "original_width": "1210px",
+      "original_height": "1147px"
+    }
+  ]
+}

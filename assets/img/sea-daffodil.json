@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "Pancratium maritimum sea daffodil flower sand beach",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b124b333ddc2.jpg",
+      "caption": "",
+      "source": "Discovering Kos",
+      "original_width": "1620px",
+      "original_height": "1080px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b60d8469044d.jpg",
+      "caption": "",
+      "source": "Seeds of Malta",
+      "original_width": "1919px",
+      "original_height": "1423px"
+    }
+  ]
+}

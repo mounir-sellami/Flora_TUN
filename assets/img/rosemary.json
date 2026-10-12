@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "rosemary shrub blue flowers Salvia rosmarinus",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b1527035185d.jpg",
+      "caption": "",
+      "source": "",
+      "original_width": "1936px",
+      "original_height": "1936px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b2ea5e618392.jpg",
+      "caption": "",
+      "source": "",
+      "original_width": "1024px",
+      "original_height": "1024px"
+    }
+  ]
+}

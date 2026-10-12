@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "wild thyme Thymus purple flowers aromatic",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/30e44830a3f5.webp",
+      "caption": "",
+      "source": "Sugar Creek Gardens",
+      "original_width": "1200px",
+      "original_height": "1200px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/750f74ff6689.jpg",
+      "caption": "",
+      "source": "Backyard Boss",
+      "original_width": "1600px",
+      "original_height": "900px"
+    }
+  ]
+}

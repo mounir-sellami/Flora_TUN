@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "Arbutus unedo strawberry tree fruits red",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/346ba59831ab.jpg",
+      "caption": "",
+      "source": "Trees and Shrubs Online",
+      "original_width": "1070px",
+      "original_height": "1600px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/6a9692538323.jpg",
+      "caption": "",
+      "source": "Top Tropicals",
+      "original_width": "888px",
+      "original_height": "1182px"
+    }
+  ]
+}

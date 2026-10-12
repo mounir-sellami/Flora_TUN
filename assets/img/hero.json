@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "Tunisia olive grove countryside landscape mediterranean",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/6e2b7fdbb23a.jpg",
+      "caption": "",
+      "source": "",
+      "original_width": "1300px",
+      "original_height": "956px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/beeff1c9180c.jpg",
+      "caption": "",
+      "source": "",
+      "original_width": "2000px",
+      "original_height": "1049px"
+    }
+  ]
+}

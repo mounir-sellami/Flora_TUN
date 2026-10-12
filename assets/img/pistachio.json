@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "query": "Pistacia atlantica tree branches green foliage photo",
+  "count": 4,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/002a8bed3525.jpg",
+      "caption": "",
+      "source": "Alamy",
+      "original_width": "1300px",
+      "original_height": "957px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/7bd9fdaa9b08.jpg",
+      "caption": "",
+      "source": "Find Trees & Learn | UA Campus Arboretum",
+      "original_width": "2736px",
+      "original_height": "3648px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/d25cbc2a1e3f.jpg",
+      "caption": "",
+      "source": "Top Tropicals",
+      "original_width": "1632px",
+      "original_height": "1224px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b6128c9aaa2f.jpeg",
+      "caption": "",
+      "source": "GBIF",
+      "original_width": "1536px",
+      "original_height": "2048px"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "query": "cyclamen flowers blooming in forest spring",
+  "count": 4,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/3604a0b67597.jpg",
+      "caption": "",
+      "source": "Dig Delve",
+      "original_width": "1280px",
+      "original_height": "800px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b7da525ec41b.jpg",
+      "caption": "",
+      "source": "Gardener's Path",
+      "original_width": "1200px",
+      "original_height": "800px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/a3768db86406.jpg",
+      "caption": "",
+      "source": "Plantly",
+      "original_width": "1386px",
+      "original_height": "924px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/59d8ffc7fae7.jpeg",
+      "caption": "",
+      "source": "Pexels",
+      "original_width": "5184px",
+      "original_height": "3456px"
+    }
+  ]
+}

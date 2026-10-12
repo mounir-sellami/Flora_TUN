@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "carob tree Ceratonia siliqua pods leaves",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/588aa372542e.jpg",
+      "caption": "",
+      "source": "Haven Herbs",
+      "original_width": "1946px",
+      "original_height": "1299px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/9581d68e197a.jpg",
+      "caption": "",
+      "source": "eFlora of India",
+      "original_width": "1000px",
+      "original_height": "810px"
+    }
+  ]
+}

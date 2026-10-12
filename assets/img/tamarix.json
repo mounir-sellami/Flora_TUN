@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "Tamarix tree pink flowers salt cedar",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/f2362ad39551.jpg",
+      "caption": "",
+      "source": "Nature & Garden",
+      "original_width": "1200px",
+      "original_height": "975px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/abf1b3b24061.jpg",
+      "caption": "",
+      "source": "Alamy",
+      "original_width": "866px",
+      "original_height": "1390px"
+    }
+  ]
+}

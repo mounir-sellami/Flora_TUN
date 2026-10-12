@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "Capparis spinosa caper plant pink white flower",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/116386cb0d45.jpg",
+      "caption": "",
+      "source": "Ferri Seeds",
+      "original_width": "1365px",
+      "original_height": "1024px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/7e143208e09f.jpg",
+      "caption": "",
+      "source": "Alamy",
+      "original_width": "1300px",
+      "original_height": "956px"
+    }
+  ]
+}

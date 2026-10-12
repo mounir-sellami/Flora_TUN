@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "query": "Calligonum comosum desert shrub sand dunes",
+  "count": 2,
+  "ranked": false,
+  "captioned_count": 0,
+  "results": [
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/d46942e6aa86.jpg",
+      "caption": "",
+      "source": "Dreamstime",
+      "original_width": "1600px",
+      "original_height": "1153px"
+    },
+    {
+      "original_url": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/6e8342eb57b6.jpg",
+      "caption": "",
+      "source": "Desert Fun",
+      "original_width": "1280px",
+      "original_height": "720px"
+    }
+  ]
+}
