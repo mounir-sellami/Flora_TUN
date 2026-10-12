@@ -973,6 +973,19 @@ section.panel.active{display:block;animation:fade .4s ease}
 .lo-row .del:hover{background:#fee2e2}
 .lo-row .del svg{width:14px;height:14px}
 /* ─── Footer & toast ─── */
+
+/* ─── Logos institutionnels (header) ─── */
+.top-logo{height:46px;width:auto;max-width:90px;object-fit:contain;flex:none;border-radius:6px;display:block}
+@media(max-width:640px){.top-logo{height:34px;max-width:56px}.top-in{gap:8px}}
+/* ─── Infos auteur (footer) ─── */
+.author-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 14px;padding:18px 0;border-top:1px dashed rgba(201,162,39,.55)}
+.au-pill{display:inline-flex;align-items:center;gap:9px;background:#fff;color:#1a2b22;border:1.5px solid #e6dcc3;border-radius:999px;padding:7px 16px;font-size:12.5px;font-weight:600;text-decoration:none;white-space:nowrap}
+.au-pill b{color:#1f5fa8;font-weight:700}
+.au-pill a{color:#1f5fa8;font-weight:700;text-decoration:none}
+.au-pill .au-ic{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;flex:none}
+.au-dev .au-ic{background:#8a6a3c;color:#fff}
+.au-mail .au-ic{color:#b0702f;background:transparent;font-size:17px}
+.au-wa .au-ic{background:#25d366;color:#fff}
 footer{background:#0e271b;color:rgba(255,255,255,.85);margin-top:10px}
 .foot-in{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:28px;padding:42px 0 26px}
 .foot-in h5{font-size:13.5px;font-weight:800;color:#fff;margin-bottom:11px}
@@ -1046,6 +1059,7 @@ html[dir="ltr"] .switch.on::after{transform:translateX(20px)}
 </svg>
 
 <header class="top"><div class="container top-in">
+  <img class="top-logo" src="images/Tun_Flag.jpg" alt="Tunisie" onerror="this.style.display='none'">
   <a class="brand" onclick="TBI.tab('home')">
     <span class="brand-logo"><svg><use href="#i-sprout"/></svg></span>
     <span><b data-i18n="brandT">جرد النباتات في تونس</b><span data-i18n="brandS">رسم خرائط التوزيع والمحافظة عليها</span></span>
@@ -1062,6 +1076,8 @@ html[dir="ltr"] .switch.on::after{transform:translateX(20px)}
     <button type="button" data-lang="fr" title="Français — France" aria-label="Français"><svg viewBox="0 0 32 32" aria-hidden="true"><clipPath id="cfFr"><circle cx="16" cy="16" r="16"/></clipPath><g clip-path="url(#cfFr)"><rect width="32" height="32" fill="#fff"/><rect width="10.7" height="32" fill="#0055A4"/><rect x="21.3" width="10.7" height="32" fill="#EF4135"/></g></svg></button>
     <button type="button" data-lang="en" title="English — Royaume-Uni" aria-label="English"><svg viewBox="0 0 32 32" aria-hidden="true"><clipPath id="cfEn"><circle cx="16" cy="16" r="16"/></clipPath><g clip-path="url(#cfEn)"><rect width="32" height="32" fill="#012169"/><path d="M0 0 32 32M32 0 0 32" stroke="#fff" stroke-width="6"/><path d="M0 0 32 32M32 0 0 32" stroke="#C8102E" stroke-width="2.2"/><path d="M16 0v32M0 16h32" stroke="#fff" stroke-width="10"/><path d="M16 0v32M0 16h32" stroke="#C8102E" stroke-width="5.6"/></g></svg></button>
   </div>
+
+  <img class="top-logo top-logo-end" src="images/Geo.jpg" alt="Geo" onerror="this.style.display='none'">
 </div></header>
 
 <main>
@@ -1270,6 +1286,11 @@ html[dir="ltr"] .switch.on::after{transform:translateX(20px)}
   </ul></div>
   <div><h5 data-i18n="ftSrc">المصادر</h5><p data-i18n="ftSrcP">الهورو (1959) · بوتييه-ألابيت (1979) · القوائم الحمراء UICN · الإدارة العامة للغابات · إحداثيات ونصوص استرشادية ذات نزعة تربوية.</p></div>
 </div>
+<div class="container author-bar">
+  <span class="au-pill au-dev"><span class="au-ic">👤</span><span><span data-i18n="auDev">التطوير</span> : <b data-i18n="auName">منير السلامي</b></span></span>
+  <span class="au-pill au-mail"><span class="au-ic">✉️</span><span><span data-i18n="auMail">البريد الإلكتروني</span> : <a href="mailto:mounir_sellami@yahoo.fr" dir="ltr">mounir_sellami@yahoo.fr</a></span></span>
+  <span class="au-pill au-wa"><span class="au-ic">✆</span><span><span data-i18n="auWa">واتساب</span> : <a href="https://wa.me/21622723486" target="_blank" rel="noopener" dir="ltr">+216 22 723 486</a></span></span>
+</div>
 <div class="container foot-bottom"><span data-i18n="ftB1">© 2026 · جرد النباتات في تونس — Inventaire Botanique de Tunisie</span><span data-i18n="ftB2">نرسم الخرائط لكي نحافظ 🌿</span></div></footer>
 
 <div class="overlay" id="overlay"><div class="modal" role="dialog" aria-modal="true" id="modalBox"></div></div>
@@ -1353,7 +1374,7 @@ noData:"لا توجد بيانات",nSpTpl:"🌿 {n} أنواع",ha:"هكتار"
 ftDesc:"مشروع تربوي في خدمة الإرث النباتي التونسي: نجرد الأنواع، نرسم خرائط توزيعها ونعمل على المحافظة عليها — نسخة مستقلة تعمل دون تثبيت أو خادم.",
 ftNav:"التنقل",ftSrc:"المصادر",
 ftSrcP:"الهورو (1959) · بوتييه-ألابيت (1979) · القوائم الحمراء UICN · الإدارة العامة للغابات · إحداثيات ونصوص استرشادية ذات نزعة تربوية.",
-ftB1:"© 2026 · جرد النباتات في تونس — Inventaire Botanique de Tunisie",ftB2:"نرسم الخرائط لكي نحافظ 🌿",
+ftB1:"© 2026 · جرد النباتات في تونس — Inventaire Botanique de Tunisie",ftB2:"نرسم الخرائط لكي نحافظ 🌿",auDev:"التطوير",auName:"منير السلامي",auMail:"البريد الإلكتروني",auWa:"واتساب",
 navInv:"الجرد النباتي",navMap:"خريطة التوزيع",navCons:"المحافظة",navObs:"المشاهدات الميدانية",
 ariaLang:"اختيار اللغة",lbHint:"انقر في أي مكان للإغلاق"
 },
@@ -1422,7 +1443,7 @@ noData:"Aucune donnée",nSpTpl:"🌿 {n} espèces",ha:"hectares",
 ftDesc:"Projet pédagogique au service du patrimoine végétal tunisien : nous inventorions les espèces, cartographions leur répartition et œuvrons à leur conservation — version autonome sans installation ni serveur.",
 ftNav:"Navigation",ftSrc:"Sources",
 ftSrcP:"Le Houérou (1959) · Pottier-Alapetite (1979) · Listes rouges UICN · Direction générale des Forêts · coordonnées et textes à vocation pédagogique.",
-ftB1:"© 2026 · Inventaire botanique de Tunisie — جرد النباتات في تونس",ftB2:"Cartographier pour conserver 🌿",
+ftB1:"© 2026 · Inventaire botanique de Tunisie — جرد النباتات في تونس",ftB2:"Cartographier pour conserver 🌿",auDev:"Développement",auName:"Mounir Sellami",auMail:"E-mail",auWa:"WhatsApp",
 navInv:"Inventaire botanique",navMap:"Carte de répartition",navCons:"Conservation",navObs:"Observations de terrain",
 ariaLang:"Choix de la langue",lbHint:"Cliquez n'importe où pour fermer"
 },
@@ -1491,7 +1512,7 @@ noData:"No data",nSpTpl:"🌿 {n} species",ha:"hectares",
 ftDesc:"An educational project serving the Tunisian botanical heritage: we inventory species, map their distribution and work to conserve them — standalone version requiring no installation or server.",
 ftNav:"Navigation",ftSrc:"Sources",
 ftSrcP:"Le Houérou (1959) · Pottier-Alapetite (1979) · IUCN Red Lists · General Directorate of Forests · coordinates and texts for educational purposes.",
-ftB1:"© 2026 · Plant Inventory of Tunisia — جرد النباتات في تونس",ftB2:"Mapping to conserve 🌿",
+ftB1:"© 2026 · Plant Inventory of Tunisia — جرد النباتات في تونس",ftB2:"Mapping to conserve 🌿",auDev:"Development",auName:"Mounir Sellami",auMail:"E-mail",auWa:"WhatsApp",
 navInv:"Botanical inventory",navMap:"Distribution map",navCons:"Conservation",navObs:"Field observations",
 ariaLang:"Language selection",lbHint:"Click anywhere to close"
 }};
