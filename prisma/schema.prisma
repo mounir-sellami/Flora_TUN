@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Espèce végétale (جرد النباتات) ───────────────────────────────
+model Species {
+  id             String        @id @default(cuid())
+  scientificName String        @unique
+  arabicName     String
+  frenchName     String
+  familyAr       String
+  familyLatin    String
+  emoji          String
+  image          String?
+  description    String
+  habitat        String
+  bioclimate     String
+  zone           String
+  conservation   String
+  endemic        Boolean       @default(false)
+  uses           String?
+  flowering      String?
+  regions        String
+  createdAt      DateTime      @default(now())
+  observations   Observation[]
+}
+
+// ─── Gouvernorat (ولاية) ──────────────────────────────────────────
+model Governorate {
+  id     String @id
+  nameAr String
+  nameFr String
+  lat    Float
+  lng    Float
+  zone   String
+}
+
+// ─── Aire protégée (محمية / حديقة وطنية) ──────────────────────────
+model ProtectedArea {
+  id          String @id @default(cuid())
+  nameAr      String
+  nameFr      String
+  type        String
+  governorate String
+  areaHa      Int
+  lat         Float
+  lng         Float
+  description String
+}
+
+// ─── Observation citoyenne (مشاهدة ميدانية) ───────────────────────
+model Observation {
+  id        String   @id @default(cuid())
+  speciesId String
+  species   Species  @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  regionId  String
+  lat       Float?
+  lng       Float?
+  observer  String
+  notes     String?
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+}
